@@ -1,0 +1,24 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum RoundStatus {
+  STARTING
+  BETTING
+  PLAYING
+  ENDED
+}
+
+model Round {
+  id         String   @id @default(uuid())
+  nounce     Int      @unique
+  serverSeed String
+  status     RoundStatus @default(STARTING)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
