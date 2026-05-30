@@ -35,8 +35,11 @@ export class AuthRepository extends KeyCloakBaseRepository {
     const data = await response.json()
 
     localStorage.setItem(
-      'user',
-      JSON.stringify({ access_token: data.access_token }),
+      'user_tokens',
+      JSON.stringify({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+      }),
     )
   }
 
