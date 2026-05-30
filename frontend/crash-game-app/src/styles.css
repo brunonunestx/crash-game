@@ -15,3 +15,13 @@ body {
   margin: 0;
 }
 
+@theme {
+  --color-primary: #D4AF37;
+  --color-secondary: #E8C76A;
+  --color-background: #05141A;
+  --color-background-variant: #1a1b2d;
+  --color-foreground: #E7D5A0;
+  --color-foreground-variant: #d1d5db;
+  --color-golden: #4A4330;
+}
+
