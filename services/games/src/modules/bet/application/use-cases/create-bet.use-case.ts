@@ -1,0 +1,8 @@
+import { UseCase } from "@/shared/patterns/use-case";
+import { CreateBetDto } from "../../presentation/dto/create-bet.dto";
+
+export class CreateBet extends UseCase<CreateBetDto, void> {
+  execute(input: CreateBetDto): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+}

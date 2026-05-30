@@ -15,7 +15,7 @@ services:
       - postgres_data:/var/lib/postgresql/crash-games-data
       - ./docker/postgres/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U admin"]
+      test: ["CMD-SHELL", "pg_isready -U admin -d postgres"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -93,48 +93,48 @@ services:
   # ---------------------------------------------------------------------------
   # Games Service
   # ---------------------------------------------------------------------------
-  games:
-    build:
-      context: ./services/games
-      dockerfile: Dockerfile
-    ports:
-      - "4001:4001"
-    env_file:
-      - ./services/games/.env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:4001/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 15s
+  # games:
+  #   build:
+  #     context: ./services/games
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "4001:4001"
+  #   env_file:
+  #     - ./services/games/.env
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -sf http://localhost:4001/health || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+  #     start_period: 15s
 
   # ---------------------------------------------------------------------------
   # Wallets Service
   # ---------------------------------------------------------------------------
-  wallets:
-    build:
-      context: ./services/wallets
-      dockerfile: Dockerfile
-    ports:
-      - "4002:4002"
-    env_file:
-      - ./services/wallets/.env
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:4002/health || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 15s
+  # wallets:
+  #   build:
+  #     context: ./services/wallets
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "4002:4002"
+  #   env_file:
+  #     - ./services/wallets/.env
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -sf http://localhost:4002/health || exit 1"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+  #     start_period: 15s
 
   # ---------------------------------------------------------------------------
   # Frontend (placeholder — candidate implements)
