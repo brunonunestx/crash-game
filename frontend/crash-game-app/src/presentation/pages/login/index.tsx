@@ -1,3 +1,4 @@
+import { repositories } from '#/data/repositories'
 import { Box } from '#/presentation/components/box'
 import { Button } from '#/presentation/components/button'
 import { Input } from '#/presentation/components/input'
@@ -9,8 +10,7 @@ export function LoginPage() {
   const [password, setPassword] = useState('')
 
   function handleLogin() {
-    // Implement login logic here
-    alert(`Username: ${username}\nPassword: ${password}`)
+    repositories.keyCloak.auth.login(username, password)
   }
 
   return (
