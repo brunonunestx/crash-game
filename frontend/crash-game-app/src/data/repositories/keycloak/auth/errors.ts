@@ -1,4 +1,4 @@
-const errors = {
+export const errors = {
   invalidCredentials: {
     code: 'invalid_credentials',
     message: 'Invalid username or password.',

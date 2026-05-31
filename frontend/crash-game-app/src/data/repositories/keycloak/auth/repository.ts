@@ -1,4 +1,5 @@
 import { KeyCloakBaseRepository } from '../base.repository'
+import { errors } from './errors'
 
 export class AuthRepository extends KeyCloakBaseRepository {
   constructor() {

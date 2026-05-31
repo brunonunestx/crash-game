@@ -2,15 +2,21 @@ import { repositories } from '#/data/repositories'
 import { Box } from '#/presentation/components/box'
 import { Button } from '#/presentation/components/button'
 import { Input } from '#/presentation/components/input'
+import { Toast } from '#/presentation/components/toast'
 import { User, Lock } from 'lucide-react'
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  function handleLogin() {
-    repositories.keyCloak.auth.login(username, password)
+  async function handleLogin() {
+    try {
+      await repositories.keyCloak.auth.login(username, password)
+    } catch (error: any) {
+      toast.custom(() => <Toast message={error.message} type="error"></Toast>)
+    }
   }
 
   return (
