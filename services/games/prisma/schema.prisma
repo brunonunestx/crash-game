@@ -15,10 +15,35 @@ enum RoundStatus {
 }
 
 model Round {
-  id         String   @id @default(uuid())
-  nounce     Int      @unique
+  id         String      @id @default(uuid())
+  nounce     Int         @unique
   serverSeed String
   status     RoundStatus @default(STARTING)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  bets       Bet[]
 }
+
+enum BetStatus {
+  ACTIVE
+  CANCELED
+  CASHED_OUT
+  LOST
+}
+model Bet {
+  id        String   @id @default(uuid())
+  roundId   String
+  userEmail String
+  amount    Int
+  cashoutAt Int?
+  status    BetStatus @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([roundId])
+  @@index([userEmail])
+  @@index([roundId, userEmail], name: "round_user_idx")
+  round Round @relation(fields: [roundId], references: [id])
+}
+

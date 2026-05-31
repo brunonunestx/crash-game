@@ -8,7 +8,7 @@ import { GetRound } from "./application/use-cases/get-round.use-case";
 
 @Module({
   providers: [RoundEngine, RunRound, GetRound, RoundGateway, RoundRepository],
-  exports: [RoundEngine, RunRound],
+  exports: [RoundEngine, RunRound, GetRound],
   controllers: [RoundController],
 })
 export class RoundModule {}

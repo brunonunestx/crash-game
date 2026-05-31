@@ -40,7 +40,6 @@ export const Bet = ({ round }: BetProps) => {
   function makeBet() {
     setUserAlreadyBet(true)
     createBet.mutate({
-      roundId: round?.id ?? '',
       amount: betAmount,
     })
   }

@@ -1,10 +1,25 @@
-export class BetStatus {
-  value: string;
+import { BetStatus as BetStatusEnum } from "generated/prisma/enums";
 
-  constructor(private readonly status: string) {
-    if (!status) {
-      throw new Error("Bet status is required.");
-    }
+export class BetStatus {
+  value: BetStatusEnum;
+
+  constructor(status: BetStatusEnum) {
     this.value = status;
+  }
+
+  isActive() {
+    return this.value === BetStatusEnum.ACTIVE;
+  }
+
+  isCashedOut() {
+    return this.value === BetStatusEnum.CASHED_OUT;
+  }
+
+  isLost() {
+    return this.value === BetStatusEnum.LOST;
+  }
+
+  isCancelled() {
+    return this.value === BetStatusEnum.CANCELED;
   }
 }
