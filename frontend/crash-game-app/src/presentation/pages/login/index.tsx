@@ -7,7 +7,7 @@ import { User, Lock } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { useNavigate } from '@tanstack/react-router'
-import { routesPath } from '#/routes/routes.config'
+import { routesConfig } from '#/routes/routes.config'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
@@ -19,7 +19,7 @@ export function LoginPage() {
     setIsLoading(true)
     try {
       await repositories.keyCloak.auth.login(username, password)
-      navigate({ to: routesPath.home })
+      navigate({ to: routesConfig.home.path })
     } catch (error: any) {
       toast.custom(() => <Toast message={error.message} type="error"></Toast>)
     } finally {

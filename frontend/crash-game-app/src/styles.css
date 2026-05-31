@@ -15,11 +15,34 @@ body {
   margin: 0;
 }
 
+.styled-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) var(--color-background-variant);
+}
+
+.styled-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.styled-scrollbar::-webkit-scrollbar-track {
+  background: var(--color-background-variant);
+  border-radius: 999px;
+}
+
+.styled-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-primary);
+  border-radius: 999px;
+}
+
+.styled-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary);
+}
+
 @theme {
   --color-primary: #D4AF37;
   --color-secondary: #E8C76A;
   --color-background: #05141A;
-  --color-background-variant: #1a1b2d;
+  --color-background-variant: #031C2A;
   --color-foreground: #E7D5A0;
   --color-foreground-variant: #d1d5db;
   --color-golden: #4A4330;
