@@ -4,20 +4,23 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from "@nestjs/websockets";
-import { Server } from "socket.io";
+import { Server, Socket } from "socket.io";
 import { Round } from "../../domain/entities/round.entity";
 import { RoundUpdatesDto } from "../dto/gateway.dto";
+import { messages } from "@crash-game/constants";
+import { RoundEngine } from "../../application/engine/round.engine";
 
 @WebSocketGateway()
 export class RoundGateway implements OnGatewayConnection, OnGatewayDisconnect {
+  constructor(private readonly roundEngine: RoundEngine) {}
   @WebSocketServer()
   server!: Server;
 
-  handleConnection() {
-    console.log("Client connected");
+  handleConnection(client: Socket) {
+    client.emit(messages.syncRound, this.roundEngine.getCurrentRound());
   }
 
-  handleDisconnect() {
+  handleDisconnect(client: Socket) {
     console.log("Client disconnected");
   }
 
