@@ -19,6 +19,7 @@ export class SendMessageWorker {
     const sentMessages = [];
     for (const message of pendingMessages) {
       this.client.emit(message.eventType, {
+        id: message.id,
         userEmail: message.userEmail,
         amount: message.amount,
       });
