@@ -22,7 +22,7 @@ model Round {
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 
-  bets       Bet[]
+  bets Bet[]
 }
 
 enum BetStatus {
@@ -31,19 +31,34 @@ enum BetStatus {
   CASHED_OUT
   LOST
 }
+
 model Bet {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   roundId   String
   userEmail String
   amount    Int
   cashoutAt Int?
   status    BetStatus @default(ACTIVE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  round     Round     @relation(fields: [roundId], references: [id])
 
   @@index([roundId])
   @@index([userEmail])
   @@index([roundId, userEmail], name: "round_user_idx")
-  round Round @relation(fields: [roundId], references: [id])
 }
 
+enum EventType {
+  BET_DONE
+  BET_WINNER
+}
+model Outbox {
+  id        String   @id @default(uuid())
+  eventType EventType
+  userEmail String
+  amount    Int
+  processed Boolean  @default(false)
+  createdAt DateTime @default(now())
+  
+  @@index([processed])
+}

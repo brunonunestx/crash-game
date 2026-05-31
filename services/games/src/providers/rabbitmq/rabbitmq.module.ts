@@ -1,6 +1,9 @@
 import { queueNames } from "@crash-game/constants";
 import { Module } from "@nestjs/common";
 import { ClientsModule, Transport } from "@nestjs/microservices";
+import { SendMessageWorker } from "./application/workers/send-message.worker";
+import { PublishMessagesUseCase } from "./application/use-cases/publish-message.use-case";
+import { OutboxRepository } from "./infrastructure/repositories/outbox.repository";
 
 @Module({
   imports: [
@@ -16,7 +19,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
       },
     ]),
   ],
-  providers: [],
-  exports: [],
+  providers: [SendMessageWorker, PublishMessagesUseCase, OutboxRepository],
+  exports: [PublishMessagesUseCase],
 })
 export class RabbitMQModule {}
