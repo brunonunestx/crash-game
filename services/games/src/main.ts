@@ -18,6 +18,12 @@ async function bootstrap(): Promise<void> {
 
   SwaggerModule.setup("docs", app, document, { useGlobalPrefix: true });
 
+  app.enableCors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  });
+
   const port = process.env.PORT ?? 4001;
 
   await app.listen(port, "0.0.0.0");

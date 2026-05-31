@@ -1,3 +1,4 @@
+import { useCreateBet } from '#/data/queries/games/use-create-bet'
 import { Button } from '#/presentation/components/button'
 import { Input } from '#/presentation/components/input'
 import { RoundStatus, type IRound } from '@crash-game/types'
@@ -11,6 +12,8 @@ export const Bet = ({ round }: BetProps) => {
   const [betAmount, setBetAmount] = useState<number>(0)
   const [userAlreadyBet, setUserAlreadyBet] = useState<boolean>(false)
   const [label, setLabel] = useState<string>('Aguardar')
+
+  const createBet = useCreateBet()
 
   useEffect(() => {
     if (round?.status === RoundStatus.STARTING) {
@@ -36,6 +39,10 @@ export const Bet = ({ round }: BetProps) => {
 
   function makeBet() {
     setUserAlreadyBet(true)
+    createBet.mutate({
+      roundId: round?.id ?? '',
+      amount: betAmount,
+    })
   }
 
   function cashOut() {

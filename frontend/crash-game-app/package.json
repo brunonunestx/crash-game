@@ -15,9 +15,9 @@
     "check": "prettier --check ."
   },
   "dependencies": {
-    "@crash-game/utils": "*",
     "@crash-game/constants": "*",
     "@crash-game/types": "*",
+    "@crash-game/utils": "*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-query": "latest",
@@ -27,6 +27,7 @@
     "@tanstack/react-router-ssr-query": "latest",
     "@tanstack/react-start": "latest",
     "@tanstack/router-plugin": "^1.132.0",
+    "axios": "^1.16.1",
     "keycloak-js": "^26.2.4",
     "lucide-react": "^1.17.0",
     "react": "^19.2.0",

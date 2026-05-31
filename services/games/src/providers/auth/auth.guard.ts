@@ -27,7 +27,14 @@ export class AuthGuard implements CanActivate {
     }
 
     const jwks = createLocalJWKSet(certs);
-    const { payload } = await jwtVerify(token, jwks);
+    let payload;
+
+    try {
+      payload = await jwtVerify(token, jwks);
+    } catch (err) {
+      console.error("JWT verification failed:", err);
+      throw new UnauthorizedException("Invalid token");
+    }
 
     request.user = payload;
     return true;

@@ -31,7 +31,7 @@ export class SocketRepository {
 
   private buildSocket() {
     if (!this.socket) {
-      this.socket = io(import.meta.env.VITE_SOCKET_URL as string, {
+      this.socket = io(import.meta.env.VITE_GAMES_API_URL as string, {
         transports: ['websocket'],
         autoConnect: false,
       })

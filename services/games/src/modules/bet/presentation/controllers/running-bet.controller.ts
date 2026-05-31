@@ -11,7 +11,9 @@ export class BetController {
   @Post()
   createBet(@Req() req: any, @Body() payload: CreateBetDto) {
     const user = req.user;
-    console.log("Creating bet for user:", user.sub, "with payload:", payload);
-    return this.createBetUseCase.execute({ ...payload, userId: user.sub });
+    return this.createBetUseCase.execute({
+      ...payload,
+      userEmail: user.payload.email,
+    });
   }
 }
