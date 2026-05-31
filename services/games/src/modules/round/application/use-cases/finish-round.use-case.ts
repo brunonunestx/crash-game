@@ -16,6 +16,5 @@ export class FinishRoundUseCase extends UseCase<{ roundId: string }, void> {
     await this.closeOpenedBetsUseCase.execute({ roundId });
 
     const winners = await this.findWinnersUseCase.execute({ roundId });
-    console.log("Winners:", winners);
   }
 }
