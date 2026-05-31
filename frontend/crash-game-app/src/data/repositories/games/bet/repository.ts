@@ -9,4 +9,12 @@ export class BetRepository extends BaseRepository {
   createBet(payload: ICreateBetInput) {
     return this.http.post('/', payload)
   }
+
+  cashOut() {
+    return this.http.post('/cashout')
+  }
+
+  cancelBet() {
+    return this.http.post('/cancel')
+  }
 }

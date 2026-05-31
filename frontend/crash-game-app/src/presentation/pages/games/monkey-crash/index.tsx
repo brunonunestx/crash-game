@@ -5,7 +5,7 @@ import { RoundStatus } from '@crash-game/types'
 import { centsToDouble } from '@crash-game/utils'
 import { Graph } from './_components/graph'
 import { useState } from 'react'
-import { Bet } from './_components/bet/bet'
+import { Bet } from './_components/bet'
 
 export function MonkeyCrashPage() {
   const multiplierRef = useRef<HTMLSpanElement | null>(null)

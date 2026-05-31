@@ -1,7 +1,9 @@
 import { UseCase } from "@/shared/patterns/use-case";
 import { BetRepository } from "../../infrastructure/repositories/bet.repository";
 import { GetRound } from "@/modules/round/application/use-cases/get-round.use-case";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class CancelBet extends UseCase<{ userEmail: string }, void> {
   constructor(
     private readonly betRepository: BetRepository,

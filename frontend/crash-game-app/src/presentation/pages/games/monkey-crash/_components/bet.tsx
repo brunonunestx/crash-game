@@ -1,4 +1,4 @@
-import { useCreateBet } from '#/data/queries/games/use-create-bet'
+import { useBet } from '#/data/queries/games/use-bet'
 import { Button } from '#/presentation/components/button'
 import { Input } from '#/presentation/components/input'
 import { RoundStatus, type IRound } from '@crash-game/types'
@@ -11,13 +11,15 @@ type BetProps = {
 export const Bet = ({ round }: BetProps) => {
   const [betAmount, setBetAmount] = useState<number>(0)
   const [userAlreadyBet, setUserAlreadyBet] = useState<boolean>(false)
+  const [userAlreadyCashOut, setUserAlreadyCashOut] = useState<boolean>(false)
   const [label, setLabel] = useState<string>('Aguardar')
 
-  const createBet = useCreateBet()
+  const { useCreateBet, useCashOut, useCancelBet } = useBet()
 
   useEffect(() => {
     if (round?.status === RoundStatus.STARTING) {
       setUserAlreadyBet(false)
+      setUserAlreadyCashOut(false)
       setBetAmount(0)
       setLabel('Aguardar')
     }
@@ -39,13 +41,14 @@ export const Bet = ({ round }: BetProps) => {
 
   function makeBet() {
     setUserAlreadyBet(true)
-    createBet.mutate({
+    useCreateBet.mutate({
       amount: betAmount,
     })
   }
 
   function cashOut() {
-    console.log('Cash out:', betAmount)
+    setUserAlreadyCashOut(true)
+    useCashOut.mutate()
   }
 
   return (
@@ -65,8 +68,7 @@ export const Bet = ({ round }: BetProps) => {
           className="cursor-pointer"
           disabled={
             round?.status === RoundStatus.ENDED ||
-            round?.status === RoundStatus.STARTING ||
-            userAlreadyBet
+            round?.status === RoundStatus.STARTING
           }
         ></Button>
       </div>

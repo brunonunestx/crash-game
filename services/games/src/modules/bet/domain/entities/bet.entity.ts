@@ -8,6 +8,7 @@ type BetProps = {
   amount: number;
   cashoutAt?: number;
   status: BetStatusEnum;
+  createdAt?: Date;
 };
 
 export class Bet {
@@ -26,7 +27,7 @@ export class Bet {
     this.amount = props.amount;
     this.status = new BetStatus(props.status);
     this.cashoutAt = props.cashoutAt;
-    this.createdAt = new Date();
+    this.createdAt = props.createdAt ?? new Date();
   }
 
   cashout(multiplier: number) {
@@ -36,6 +37,14 @@ export class Bet {
 
     this.status = new BetStatus(BetStatusEnum.CASHED_OUT);
     this.cashoutAt = multiplier;
+  }
+
+  lost() {
+    if (!this.status.isActive()) {
+      throw new Error("Only active bets can be marked as lost.");
+    }
+
+    this.status = new BetStatus(BetStatusEnum.LOST);
   }
 
   cancel() {

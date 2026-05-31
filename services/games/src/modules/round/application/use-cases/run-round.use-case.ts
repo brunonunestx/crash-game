@@ -7,6 +7,7 @@ import { RoundEngine } from "../engine/round.engine";
 import { delay } from "@crash-game/utils";
 import { RoundGateway } from "../../presentation/gateways/round.gateway";
 import { RoundRepository } from "../../infrastructure/repositories/round.repository";
+import { FinishRoundUseCase } from "./finish-round.use-case";
 
 const timings = {
   starting: 1000,
@@ -20,6 +21,7 @@ export class RunRound extends UseCase<void, void> {
     private readonly roundEngine: RoundEngine,
     private readonly roundGateway: RoundGateway,
     private readonly roundRepository: RoundRepository,
+    private readonly finishRoundUseCase: FinishRoundUseCase,
   ) {
     super();
   }
@@ -66,5 +68,7 @@ export class RunRound extends UseCase<void, void> {
     this.roundEngine.setCurrentRound(round);
     await this.roundRepository.updateRound(round);
     this.roundGateway.broadcast(messages.roundUpdate, round);
+
+    await this.finishRoundUseCase.execute({ roundId: round.id });
   }
 }

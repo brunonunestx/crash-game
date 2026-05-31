@@ -20,6 +20,14 @@ export class CreateBet extends UseCase<
   async execute(input: CreateBetDto & { userEmail: string }): Promise<Bet> {
     const currentRound = await this.getRound.execute();
 
+    const activeBet = await this.betRepository.getActiveBetByUserEmail(
+      input.userEmail,
+    );
+
+    if (activeBet) {
+      throw new Error("User already has an active bet.");
+    }
+
     const bet = new Bet({
       roundId: currentRound.id,
       amount: input.amount,

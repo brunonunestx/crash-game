@@ -6,10 +6,26 @@ import { BetRepository } from "./infrastructure/repositories/bet.repository";
 import { RoundModule } from "../round/round.module";
 import { CancelBet } from "./application/use-cases/cancel-bet.use-case";
 import { CashOutUseCase } from "./application/use-cases/cash-out.use-case";
+import { FindWinnersUseCase } from "./application/use-cases/find-winners.use-case";
+import { CloseOpenedBetsUseCase } from "./application/use-cases/close-opened-bets.use-case";
 
 @Module({
   imports: [AuthModule, RoundModule],
   controllers: [BetController],
-  providers: [CreateBet, CancelBet, CashOutUseCase, BetRepository],
+  providers: [
+    CreateBet,
+    CancelBet,
+    CashOutUseCase,
+    FindWinnersUseCase,
+    CloseOpenedBetsUseCase,
+    BetRepository,
+  ],
+  exports: [
+    CreateBet,
+    CancelBet,
+    CashOutUseCase,
+    FindWinnersUseCase,
+    CloseOpenedBetsUseCase,
+  ],
 })
 export class BetModule {}

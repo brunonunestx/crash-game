@@ -1,8 +1,14 @@
 import { GetRound } from "@/modules/round/application/use-cases/get-round.use-case";
 import { UseCase } from "@/shared/patterns/use-case";
 import { BetRepository } from "../../infrastructure/repositories/bet.repository";
+import { Injectable } from "@nestjs/common";
+import { CashOutResponseDto } from "../../presentation/dto/cash-out.dto";
 
-export class CashOutUseCase extends UseCase<{ userEmail: string }, void> {
+@Injectable()
+export class CashOutUseCase extends UseCase<
+  { userEmail: string },
+  CashOutResponseDto
+> {
   constructor(
     private readonly betRepository: BetRepository,
     private readonly getRound: GetRound,
@@ -10,7 +16,11 @@ export class CashOutUseCase extends UseCase<{ userEmail: string }, void> {
     super();
   }
 
-  async execute({ userEmail }: { userEmail: string }): Promise<void> {
+  async execute({
+    userEmail,
+  }: {
+    userEmail: string;
+  }): Promise<CashOutResponseDto> {
     const currentRound = await this.getRound.execute();
     if (!currentRound.status.isPlaying()) {
       throw new Error("Cannot cash out in a round that is not still playing.");
@@ -26,5 +36,15 @@ export class CashOutUseCase extends UseCase<{ userEmail: string }, void> {
     activeBet.cashout(currentRound.currentPoint);
 
     await this.betRepository.updateBet(activeBet);
+
+    const cashoutAt = activeBet.cashoutAt;
+    if (!cashoutAt) {
+      throw new Error("Cashout point not found.");
+    }
+
+    return new CashOutResponseDto(
+      cashoutAt,
+      activeBet.calculatePayout(cashoutAt),
+    );
   }
 }
