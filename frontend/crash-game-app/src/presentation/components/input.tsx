@@ -1,11 +1,12 @@
 import { cn } from '@crash-game/utils'
 
 type InputProps = {
-  value: string
+  value: string | number
   placeholder?: string
   className?: string
   type?: string
-  onChange: (value: string) => void
+  regex?: RegExp
+  onChange: (value: string | number) => void
 }
 
 export function Input({
@@ -13,6 +14,7 @@ export function Input({
   type,
   placeholder,
   className,
+  regex,
   onChange,
 }: InputProps) {
   return (
@@ -24,7 +26,11 @@ export function Input({
       type={type}
       value={value}
       placeholder={placeholder}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => {
+        const val = e.target.value
+        if (regex && !regex.test(val)) return
+        onChange(val)
+      }}
     />
   )
 }

@@ -11,7 +11,7 @@ import { RoundRepository } from "../../infrastructure/repositories/round.reposit
 const timings = {
   starting: 1000,
   betting: 10000,
-  playing: 10,
+  playing: 50,
 };
 
 @Injectable()
@@ -38,16 +38,19 @@ export class RunRound extends UseCase<void, void> {
 
     const round = new Round({ nounce: lastRoundNumber + 1 });
     this.roundEngine.setCurrentRound(round);
+    this.roundGateway.broadcast(messages.roundUpdate, round);
     await this.roundRepository.createRound(round);
 
     await delay(timings.starting);
     round.startBetting();
     this.roundEngine.setCurrentRound(round);
+    this.roundGateway.broadcast(messages.roundUpdate, round);
     await this.roundRepository.updateRound(round);
 
     await delay(timings.betting);
     round.startPlaying();
     this.roundEngine.setCurrentRound(round);
+    this.roundGateway.broadcast(messages.roundUpdate, round);
     await this.roundRepository.updateRound(round);
 
     const crashAt = round.calculateCrashPoint();
@@ -59,10 +62,9 @@ export class RunRound extends UseCase<void, void> {
       this.roundGateway.broadcast(messages.roundUpdate, round);
     }
 
-    await delay(timings.starting);
-
     round.endRound();
     this.roundEngine.setCurrentRound(round);
     await this.roundRepository.updateRound(round);
+    this.roundGateway.broadcast(messages.roundUpdate, round);
   }
 }

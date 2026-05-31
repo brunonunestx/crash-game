@@ -1,7 +1,7 @@
-import { RoundStatus } from "generated/prisma/client";
 import { Round } from "../../domain/entities/round.entity";
+import { IRound, RoundStatus } from "@crash-game/types";
 
-export class RoundUpdatesDto {
+export class RoundUpdatesDto implements IRound {
   id!: string;
   number!: number;
   hashedSeed!: string;
@@ -14,7 +14,7 @@ export class RoundUpdatesDto {
     this.number = round.number;
     this.hashedSeed = round.hashedSeed;
     this.currentPoint = round.currentPoint;
-    this.status = round.status.value;
+    this.status = round.status.value as RoundStatus;
     this.createdAt = round.createdAt;
   }
 }

@@ -12,6 +12,7 @@
       "name": "crash-game-app",
       "dependencies": {
         "@crash-game/constants": "*",
+        "@crash-game/types": "*",
         "@crash-game/utils": "*",
         "@tailwindcss/vite": "^4.1.18",
         "@tanstack/react-devtools": "latest",
@@ -57,6 +58,15 @@
         "typescript": "^5",
       },
     },
+    "packages/types": {
+      "name": "@crash-game/types",
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
     "packages/utils": {
       "name": "@crash-game/utils",
       "devDependencies": {
@@ -71,6 +81,7 @@
       "version": "0.0.1",
       "dependencies": {
         "@crash-game/constants": "*",
+        "@crash-game/types": "*",
         "@crash-game/utils": "*",
         "@nestjs/common": "^11.1.17",
         "@nestjs/core": "^11.1.17",
@@ -84,6 +95,7 @@
         "class-validator": "^0.15.1",
         "cron": "^4.4.0",
         "dotenv": "^17.4.2",
+        "jose": "^6.2.3",
         "pg": "^8.21.0",
         "reflect-metadata": "^0.2.2",
         "rxjs": "^7.8.2",
@@ -171,6 +183,8 @@
     "@bramus/specificity": ["@bramus/specificity@2.4.2", "", { "dependencies": { "css-tree": "^3.0.0" }, "bin": { "specificity": "bin/cli.js" } }, "sha512-ctxtJ/eA+t+6q2++vj5j7FYX3nRu311q1wfYH3xjlLOsczhlhxAg2FWNUXhpGvAw3BWo1xBcvOV6/YLc2r5FJw=="],
 
     "@crash-game/constants": ["@crash-game/constants@workspace:packages/constants"],
+
+    "@crash-game/types": ["@crash-game/types@workspace:packages/types"],
 
     "@crash-game/utils": ["@crash-game/utils@workspace:packages/utils"],
 
@@ -1029,6 +1043,8 @@
     "iterare": ["iterare@1.2.1", "", {}, "sha512-RKYVTCjAnRthyJes037NX/IiqeidgN1xc3j1RjFfECFp28A1GVwK9nA+i0rJPaHqSZwygLzRnFlzUuHFoWWy+Q=="],
 
     "jiti": ["jiti@2.7.0", "", { "bin": { "jiti": "lib/jiti-cli.mjs" } }, "sha512-AC/7JofJvZGrrneWNaEnJeOLUx+JlGt7tNa0wZiRPT4MY1wmfKjt2+6O2p2uz2+skll8OZZmJMNqeke7kKbNgQ=="],
+
+    "jose": ["jose@6.2.3", "", {}, "sha512-YYVDInQKFJfR/xa3ojUTl8c2KoTwiL1R5Wg9YCydwH0x0B9grbzlg5HC7mMjCtUJjbQ/YnGEZIhI5tCgfTb4Hw=="],
 
     "js-tokens": ["js-tokens@4.0.0", "", {}, "sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ=="],
 

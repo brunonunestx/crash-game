@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@crash-game/constants": "*",
+    "@crash-game/types": "*",
     "@crash-game/utils": "*",
     "@nestjs/common": "^11.1.17",
     "@nestjs/core": "^11.1.17",
@@ -23,6 +24,7 @@
     "class-validator": "^0.15.1",
     "cron": "^4.4.0",
     "dotenv": "^17.4.2",
+    "jose": "^6.2.3",
     "pg": "^8.21.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",

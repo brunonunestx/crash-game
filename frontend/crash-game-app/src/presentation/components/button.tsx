@@ -2,7 +2,7 @@ import { cn } from '@crash-game/utils'
 
 type ButtonProps = {
   label: string
-  variant: 'primary' | 'secondary' | 'gradient'
+  variant: 'primary' | 'secondary' | 'gradient' | 'bet'
   disabled?: boolean
   width?: string
   height?: string
@@ -15,6 +15,7 @@ const variants = {
   primary: 'bg-primary text-white',
   secondary: 'bg-secondary text-white',
   gradient: 'bg-gradient-to-r from-[#C9A13A] via-[#E5C76B] to-[#D8B24B]',
+  bet: 'bg-primary text-white hover:bg-primary/80',
 }
 
 export function Button({

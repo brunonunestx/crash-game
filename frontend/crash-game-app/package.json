@@ -17,6 +17,7 @@
   "dependencies": {
     "@crash-game/utils": "*",
     "@crash-game/constants": "*",
+    "@crash-game/types": "*",
     "@tailwindcss/vite": "^4.1.18",
     "@tanstack/react-devtools": "latest",
     "@tanstack/react-query": "latest",

@@ -17,7 +17,9 @@ export class RoundGateway implements OnGatewayConnection, OnGatewayDisconnect {
   server!: Server;
 
   handleConnection(client: Socket) {
-    client.emit(messages.syncRound, this.roundEngine.getCurrentRound());
+    const round = this.roundEngine.getCurrentRound();
+    if (!round) return;
+    client.emit(messages.syncRound, new RoundUpdatesDto(round));
   }
 
   handleDisconnect(client: Socket) {
