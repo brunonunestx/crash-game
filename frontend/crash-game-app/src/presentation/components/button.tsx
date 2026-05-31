@@ -7,6 +7,7 @@ type ButtonProps = {
   width?: string
   height?: string
   className?: string
+  isLoading?: boolean
   onClick: () => void
 }
 
@@ -23,6 +24,7 @@ export function Button({
   width,
   height,
   className,
+  isLoading,
   onClick,
 }: ButtonProps) {
   return (
@@ -36,9 +38,9 @@ export function Button({
       )}
       style={{ width, height }}
       onClick={onClick}
-      disabled={disabled}
+      disabled={disabled || isLoading}
     >
-      {label}
+      {isLoading ? 'Entrando...' : label}
     </button>
   )
 }

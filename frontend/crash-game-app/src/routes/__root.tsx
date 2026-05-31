@@ -12,6 +12,13 @@ import appCss from '../styles.css?url'
 
 import type { QueryClient } from '@tanstack/react-query'
 import { Toaster } from 'sonner'
+import { useEffect, useState } from 'react'
+
+function ClientOnly({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+  return mounted ? <>{children}</> : null
+}
 
 interface MyRouterContext {
   queryClient: QueryClient
@@ -61,7 +68,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
             TanStackQueryDevtools,
           ]}
         />
-        <Toaster position="bottom-right" />
+        <ClientOnly><Toaster position="bottom-right" /></ClientOnly>
         <Scripts />
       </body>
     </html>

@@ -6,16 +6,24 @@ import { Toast } from '#/presentation/components/toast'
 import { User, Lock } from 'lucide-react'
 import { useState } from 'react'
 import { toast } from 'sonner'
+import { useNavigate } from '@tanstack/react-router'
+import { routesPath } from '#/routes/routes.config'
 
 export function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
 
   async function handleLogin() {
+    setIsLoading(true)
     try {
       await repositories.keyCloak.auth.login(username, password)
+      navigate({ to: routesPath.home })
     } catch (error: any) {
       toast.custom(() => <Toast message={error.message} type="error"></Toast>)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -76,6 +84,7 @@ export function LoginPage() {
             height="40px"
             onClick={handleLogin}
             className="w-[90%] mt-6"
+            isLoading={isLoading}
           />
           <p className="text-foreground">
             Não possui conta?{' '}
