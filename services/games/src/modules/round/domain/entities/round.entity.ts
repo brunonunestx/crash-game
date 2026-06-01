@@ -5,21 +5,35 @@ import { createHmac } from "crypto";
 import { RoundStatus } from "generated/prisma/enums";
 
 type ConstructorParams = {
+  id?: string;
   seed?: string;
   nounce: number;
+  status?: RoundStatus;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 export class Round extends Entity {
+  id: string;
   seed!: string;
   hashedSeed!: string;
   number: number;
   currentPoint: number;
+  breakPoint: number;
   status: RoundState;
   createdAt: Date;
   updatedAt: Date;
 
-  constructor({ seed, nounce }: ConstructorParams) {
+  constructor({
+    id,
+    seed,
+    nounce,
+    status,
+    createdAt,
+    updatedAt,
+  }: ConstructorParams) {
     super();
+    this.id = id || crypto.randomUUID();
     if (seed) {
       this.seed = seed;
     } else {
@@ -28,9 +42,10 @@ export class Round extends Entity {
     this.hashedSeed = this.hashServerSeed();
     this.number = nounce;
     this.currentPoint = 100;
-    this.status = new RoundState(RoundStatus.STARTING);
-    this.createdAt = new Date();
-    this.updatedAt = new Date();
+    this.breakPoint = this.calculateCrashPoint();
+    this.status = new RoundState(status || RoundStatus.STARTING);
+    this.createdAt = createdAt || new Date();
+    this.updatedAt = updatedAt || new Date();
   }
 
   startBetting() {

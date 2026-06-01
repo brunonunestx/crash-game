@@ -7,6 +7,7 @@ import { RoundController } from "./presentation/controllers/round.controller";
 import { GetRound } from "./application/use-cases/get-round.use-case";
 import { BetModule } from "../bet/bet.module";
 import { FinishRoundUseCase } from "./application/use-cases/finish-round.use-case";
+import { GetRoundHistory } from "./application/use-cases/get-round-history.use-case";
 
 @Module({
   imports: [forwardRef(() => BetModule)],
@@ -14,6 +15,7 @@ import { FinishRoundUseCase } from "./application/use-cases/finish-round.use-cas
     RoundEngine,
     RunRound,
     GetRound,
+    GetRoundHistory,
     RoundGateway,
     RoundRepository,
     FinishRoundUseCase,

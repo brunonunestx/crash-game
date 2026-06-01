@@ -33,4 +33,23 @@ export class RoundRepository {
 
     return lastRound?.nounce || 0;
   }
+
+  async getLastRounds(page: number, limit: number): Promise<Round[]> {
+    const roundsData = await this.database.round.findMany({
+      orderBy: { createdAt: "desc" },
+      where: { status: "ENDED" },
+      skip: (page - 1) * limit,
+      take: limit,
+    });
+
+    return roundsData.map(
+      (data) =>
+        new Round({
+          id: data.id,
+          nounce: data.nounce,
+          seed: data.serverSeed,
+          status: data.status,
+        }),
+    );
+  }
 }
