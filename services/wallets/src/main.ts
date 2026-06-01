@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { NestFactory } from "@nestjs/core";
-import { ValidationPipe } from "@nestjs/common";
+import { ValidationPipe, RequestMethod } from "@nestjs/common";
 import { AppModule } from "./app.module";
 import { queueNames } from "@crash-game/constants/src/rabbitmq";
 import { Transport } from "@nestjs/microservices/enums/transport.enum";
@@ -9,7 +9,9 @@ import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
-  app.setGlobalPrefix("wallets");
+  app.setGlobalPrefix("wallets", {
+    exclude: [{ path: "health", method: RequestMethod.GET }],
+  });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
 
   app.enableCors({

@@ -62,7 +62,7 @@ export class BaseRepository {
   }
 
   buildInstance(path: string): AxiosInstance {
-    const gamesApiUrl = import.meta.env.VITE_GAMES_API_URL as string
+    const gamesApiUrl = import.meta.env.VITE_API_URL as string
     const url = new URL('/games' + path, gamesApiUrl)
     const instance = axios.create({ baseURL: url.toString() })
 
