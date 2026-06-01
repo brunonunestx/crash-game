@@ -13,7 +13,7 @@ export const routesConfig = {
   games: {
     path: '/games',
     icon: Gamepad2Icon,
-    showInSidebar: true,
+    showInSidebar: false,
     name: 'Jogos',
     options: {
       crash: { path: '/monkey-crash', name: 'Crash' },
@@ -28,7 +28,7 @@ export const routesConfig = {
   settings: {
     path: '/settings',
     icon: SettingsIcon,
-    showInSidebar: true,
+    showInSidebar: false,
     name: 'Configurações',
   },
   profile: {
