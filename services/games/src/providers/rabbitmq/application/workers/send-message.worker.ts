@@ -12,7 +12,7 @@ export class SendMessageWorker {
     private readonly outboxRepository: OutboxRepository,
   ) {}
 
-  @Cron(cronTimes.every.fiveSeconds)
+  @Cron(cronTimes.every.second)
   async sendMessage() {
     const pendingMessages = await this.outboxRepository.getPendingMessages();
 
