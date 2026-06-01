@@ -22,11 +22,11 @@ export function HomePage() {
   }
 
   return (
-    <div className="p-8">
-      <h2 className="text-2xl font-bold text-primary mb-4">
+    <div className="p-4 md:p-8">
+      <h2 className="text-xl md:text-2xl font-bold text-primary mb-4">
         Jogos no estilo Crash
       </h2>
-      <section className="bg-background flex flex-nowrap gap-4 h-[40dvh] text-white p-8 rounded-xl shadow-lg overflow-x-auto styled-scrollbar">
+      <section className="bg-background flex flex-nowrap gap-4 h-[35dvh] md:h-[40dvh] text-white p-4 md:p-8 rounded-xl shadow-lg overflow-x-auto styled-scrollbar">
         {games.map((game) => (
           <GameCard
             key={game.id}

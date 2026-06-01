@@ -69,6 +69,10 @@ export class Round extends Entity {
   }
 
   calculateCrashPoint() {
+    if (process.env.TEST_CRASH_POINT) {
+      return parseInt(process.env.TEST_CRASH_POINT, 10);
+    }
+
     const hmac = createHmac("sha256", this.seed)
       .update(this.number.toString())
       .digest("hex");

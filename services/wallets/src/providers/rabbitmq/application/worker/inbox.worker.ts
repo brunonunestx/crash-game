@@ -1,11 +1,13 @@
 import { cronTimes } from "@crash-game/constants";
-import { Injectable } from "@nestjs/common";
+import { Injectable, Logger } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { InboxRepository } from "../../infrastructure/repositories/inbox.repository";
 import { CreateLedgerItemUseCase } from "@/modules/ledger/application/use-cases/create-ledger.use-case";
 
 @Injectable()
 export class InboxWorker {
+  private readonly logger = new Logger(InboxWorker.name);
+
   constructor(
     private readonly inboxRepository: InboxRepository,
     private readonly createLedgerItemUseCase: CreateLedgerItemUseCase,
@@ -15,24 +17,31 @@ export class InboxWorker {
   async execute() {
     const pendingMessages = await this.inboxRepository.findPendingMessages();
 
-    console.log(
-      `Found ${pendingMessages.length} pending messages in the inbox.`,
-    );
+    if (pendingMessages.length === 0) return;
 
-    const processedMessages = [];
+    this.logger.log(`Found ${pendingMessages.length} pending messages in the inbox.`);
+
+    const processedIds: string[] = [];
+
     for (const message of pendingMessages) {
-      await this.createLedgerItemUseCase.execute({
-        userEmail: message.payload.userEmail,
-        amount: message.payload.amount,
-        type: message.eventType,
-      });
+      try {
+        await this.createLedgerItemUseCase.execute({
+          userEmail: message.payload.userEmail,
+          amount: message.payload.amount,
+          type: message.eventType,
+        });
 
-      message.markAsProcessed();
-      processedMessages.push(message);
+        message.markAsProcessed();
+        processedIds.push(message.id);
+      } catch (err) {
+        this.logger.error(
+          `Failed to process inbox message ${message.id} for user ${message.payload.userEmail}: ${(err as Error).message}`,
+        );
+      }
     }
 
-    await this.inboxRepository.saveBatchAsProcessed(
-      processedMessages.map((m) => m.id),
-    );
+    if (processedIds.length > 0) {
+      await this.inboxRepository.saveBatchAsProcessed(processedIds);
+    }
   }
 }

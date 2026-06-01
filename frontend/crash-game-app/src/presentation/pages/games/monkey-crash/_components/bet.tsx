@@ -116,7 +116,7 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
         ))}
       </div>
 
-      <div className="flex flex-col gap-4 p-5 w-full flex-1">
+      <div className="flex flex-col gap-4 p-4 md:p-5 w-full flex-1 overflow-y-auto">
         {tab === 'auto' ? (
           <div className="flex flex-1 items-center justify-center">
             <p className="text-foreground-variant text-sm">Em breve</p>
@@ -142,6 +142,7 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
                 <span className="text-foreground-variant text-sm">R$</span>
                 <input
                   type="number"
+                  inputMode="decimal"
                   value={betAmount || ''}
                   placeholder="0,00"
                   disabled={userAlreadyBet}

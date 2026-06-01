@@ -100,6 +100,12 @@ export function Graph({
 
   useEffect(() => {
     bettingRef.current = betting
+    if (betting) {
+      lastElapsedRef.current = 0
+      crashedRef.current = false
+      flyAwayRef.current = null
+      crashedTipRef.current = null
+    }
   }, [betting])
 
   useEffect(() => {
@@ -238,7 +244,7 @@ export function Graph({
 
       const showMonkey =
         rocketImageRef.current !== null &&
-        (isFlying || (!crashedRef.current && (bettingRef.current || tipX > 0)))
+        (isFlying || bettingRef.current || (!crashedRef.current && tipX > 0))
 
       if (showMonkey && rocketImageRef.current) {
         const multiplier = (currentPointRef.current ?? 100) / 100
@@ -298,19 +304,7 @@ export function Graph({
         </div>
       )}
 
-      {status === RoundStatus.ENDED && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
-          <span
-            ref={multiplierRef}
-            className="text-5xl font-bold text-red-400"
-          />
-          <span className="text-xl font-bold text-red-400">CRASH!</span>
-        </div>
-      )}
-
-      {(status === RoundStatus.PLAYING ||
-        status === RoundStatus.STARTING ||
-        !status) && (
+      {status !== RoundStatus.BETTING && (
         <span
           ref={multiplierRef}
           className="absolute inset-0 flex items-center justify-center text-4xl font-bold font-black-ops-one-regular text-primary"
@@ -319,7 +313,7 @@ export function Graph({
         </span>
       )}
 
-      {hashedSeed && status !== RoundStatus.ENDED && (
+      {hashedSeed && (
         <HashedSeedBadge hashedSeed={hashedSeed} />
       )}
     </div>

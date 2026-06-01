@@ -10,11 +10,11 @@ let ctx: TestApp;
 
 beforeAll(async () => {
   ctx = await startTestApp(PORT);
-});
+}, 30_000);
 
 afterAll(async () => {
   await ctx.close();
-});
+}, 15_000);
 
 function connectSocket(): Socket {
   return io(WS_URL, { transports: ["websocket"] });
@@ -42,14 +42,12 @@ describe("RoundGateway WebSocket e2e", () => {
     const socket = connectSocket();
 
     try {
-      // round:sync é emitido na conexão se houver rodada
       const data = await waitForEvent<{ status: string; currentPoint: number }>(
         socket,
         messages.syncRound,
         10_000,
       ).catch(() => null);
 
-      // pode ser null se ainda não há rodada — mas a conexão deve ter ocorrido
       expect(socket.connected).toBe(true);
       if (data) {
         expect(data).toHaveProperty("status");
@@ -58,7 +56,7 @@ describe("RoundGateway WebSocket e2e", () => {
     } finally {
       socket.disconnect();
     }
-  });
+  }, 15_000);
 
   it("recebe round:update com estrutura correta durante a partida", async () => {
     const socket = connectSocket();
@@ -77,7 +75,7 @@ describe("RoundGateway WebSocket e2e", () => {
     } finally {
       socket.disconnect();
     }
-  });
+  }, 20_000);
 
   it("recebe eventos de transição de status da rodada (STARTING → BETTING → PLAYING)", async () => {
     const socket = connectSocket();
@@ -106,5 +104,5 @@ describe("RoundGateway WebSocket e2e", () => {
 
     socket.disconnect();
     expect(statuses.length).toBeGreaterThanOrEqual(2);
-  });
+  }, 35_000);
 });

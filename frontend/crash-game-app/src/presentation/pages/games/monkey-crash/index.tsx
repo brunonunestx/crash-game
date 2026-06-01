@@ -18,6 +18,8 @@ function getMultiplierColor(multiplier: number): string {
   return '#D4AF37'
 }
 
+type MobileTab = 'bet' | 'players'
+
 export function MonkeyCrashPage() {
   const multiplierRef = useRef<HTMLSpanElement | null>(null)
   const currentPointRef = useRef<number>(100)
@@ -26,6 +28,7 @@ export function MonkeyCrashPage() {
   const [currentRound, setCurrentRound] = useState<IRound | null>(null)
   const [currentMultiplier, setCurrentMultiplier] = useState(1)
   const [history, setHistory] = useState<RoundHistoryItem[]>([])
+  const [mobileTab, setMobileTab] = useState<MobileTab>('bet')
   const historyInitializedRef = useRef(false)
 
   const { data: fetchedHistory } = useRoundHistory()
@@ -95,15 +98,18 @@ export function MonkeyCrashPage() {
   }, [])
 
   return (
-    <div className="p-6 flex flex-col gap-3 h-[calc(100dvh-4rem)] max-w-[90dvw] overflow-hidden">
+    <div className="flex flex-col gap-2 md:gap-3 p-2 md:p-6 h-[calc(100dvh-3.5rem)] md:h-[100dvh] overflow-hidden">
       <RoundHistory history={history} />
 
       <div className="flex gap-4 flex-1 min-h-0">
-        <div className="h-full shrink-0 bg-background w-[30vh] rounded-lg border border-golden p-2">
+        {/* BetHistory: coluna lateral — visível apenas desktop */}
+        <div className="hidden md:block h-full shrink-0 bg-background w-[30vh] rounded-lg border border-golden p-2">
           <BetHistory bets={roundBets} roundId={currentRound?.id} />
         </div>
-        <div className="flex-1 flex flex-col gap-2 min-h-0">
-          <div className="flex-1 min-h-0">
+
+        <div className="flex flex-col flex-1 gap-2 min-h-0">
+          {/* Graph */}
+          <div className="h-[38dvh] md:h-auto md:flex-1 min-h-0">
             <Graph
               multiplierRef={multiplierRef}
               currentPointRef={currentPointRef}
@@ -116,9 +122,37 @@ export function MonkeyCrashPage() {
               hashedSeed={currentRound?.hashedSeed}
             />
           </div>
+
+          {/* Tabs mobile */}
+          <div className="flex md:hidden border-b border-golden shrink-0">
+            {(['bet', 'players'] as MobileTab[]).map((t) => (
+              <button
+                key={t}
+                onClick={() => setMobileTab(t)}
+                className={`flex-1 py-2.5 text-xs font-bold uppercase tracking-wide transition-colors ${
+                  mobileTab === t
+                    ? 'text-primary border-b-2 border-primary -mb-px'
+                    : 'text-foreground-variant'
+                }`}
+              >
+                {t === 'bet' ? 'Apostar' : 'Jogadores'}
+              </button>
+            ))}
+          </div>
+
+          {/* Conteúdo das tabs (mobile) — sempre montado para preservar estado */}
+          <div className="flex md:hidden flex-1 min-h-0 overflow-hidden">
+            <div className={mobileTab === 'bet' ? 'flex flex-1 min-h-0' : 'hidden'}>
+              <Bet round={currentRound} currentMultiplier={currentMultiplier} />
+            </div>
+            <div className={mobileTab === 'players' ? 'w-full h-full bg-background rounded-lg border border-golden p-2' : 'hidden'}>
+              <BetHistory bets={roundBets} roundId={currentRound?.id} />
+            </div>
+          </div>
         </div>
 
-        <div className="w-80 shrink-0">
+        {/* Bet: coluna lateral — visível apenas desktop */}
+        <div className="hidden md:block w-80 shrink-0">
           <Bet round={currentRound} currentMultiplier={currentMultiplier} />
         </div>
       </div>

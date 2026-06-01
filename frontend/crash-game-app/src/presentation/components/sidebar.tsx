@@ -4,7 +4,12 @@ import { LogOutIcon } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 
-export function Sidebar() {
+type SidebarProps = {
+  open: boolean
+  onClose: () => void
+}
+
+export function Sidebar({ open, onClose }: SidebarProps) {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const navigate = useNavigate()
   const { useBalance } = useWallet()
@@ -19,13 +24,27 @@ export function Sidebar() {
     setUserEmail(parsedPayload.email)
   }, [])
 
+  function handleNavigate(path: string) {
+    navigate({ to: path })
+    onClose()
+  }
+
   return (
-    <div className="w-64 h-[100dvh] flex flex-col justify-between bg-background text-white p-4">
+    <div
+      className={`
+        fixed md:static inset-y-0 left-0 z-50
+        w-64 h-[100dvh] flex flex-col justify-between
+        bg-background text-white p-4
+        transition-transform duration-300 ease-in-out
+        ${open ? 'translate-x-0' : '-translate-x-full'}
+        md:translate-x-0
+      `}
+    >
       <div>
         <img
           src="/sidebar_top2.png"
           alt="Logo"
-          className="w-full ml-auto mr-auto h-auto mb-6"
+          className="w-full h-auto mb-6"
         />
         <ul>
           {Object.values(routesConfig)
@@ -33,7 +52,7 @@ export function Sidebar() {
             .map((route) => (
               <li key={route.path} className="mb-2">
                 <div
-                  onClick={() => navigate({ to: route.path })}
+                  onClick={() => handleNavigate(route.path)}
                   className="hover:bg-gray-700 text-sm cursor-pointer rounded-xl flex items-center justify-start px-4 py-2 text-primary w-full"
                 >
                   {route.icon && <route.icon className="inline-block mr-2" />}

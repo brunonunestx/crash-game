@@ -1,10 +1,18 @@
-import { CircleUserRound } from 'lucide-react'
+import { Menu } from 'lucide-react'
 
-export function Header() {
+type HeaderProps = {
+  onMenuClick: () => void
+}
+
+export function Header({ onMenuClick }: HeaderProps) {
   return (
-    <header className="w-full h-16 bg-background text-white flex items-center justify-center">
-      <button className="ml-auto mr-4 px-4 py-2 text-white rounded-xl cursor-pointer flex items-center gap-2">
-        <CircleUserRound className="w-8 h-8 text-primary" />
+    <header className="w-full h-14 bg-background text-white flex items-center px-4 shrink-0">
+      <button
+        onClick={onMenuClick}
+        className="text-primary p-1"
+        aria-label="Abrir menu"
+      >
+        <Menu size={24} />
       </button>
     </header>
   )
