@@ -22,9 +22,25 @@ export function useWallet() {
     },
   })
 
+  const useDeposit = useMutation({
+    mutationFn: (amount: number) => repositories.wallets.wallet.deposit(amount),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: walletQueryKey })
+    },
+  })
+
+  const useWithdraw = useMutation({
+    mutationFn: (amount: number) => repositories.wallets.wallet.withdraw(amount),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: walletQueryKey })
+    },
+  })
+
   return {
     useBalance,
     useCreateWallet,
+    useDeposit,
+    useWithdraw,
   }
 }
 

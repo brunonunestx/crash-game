@@ -7,6 +7,8 @@ import { LedgerRepository } from "../../infrastructure/repositories/ledger.repos
 const mapType = {
   [EventType.BET_DONE]: TransactionType.LOSS,
   [EventType.BET_WINNER]: TransactionType.WIN,
+  [TransactionType.DEPOSIT]: TransactionType.DEPOSIT,
+  [TransactionType.WITHDRAW]: TransactionType.WITHDRAW,
 };
 
 @Injectable()

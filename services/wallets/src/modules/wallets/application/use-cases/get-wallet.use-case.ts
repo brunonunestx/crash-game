@@ -7,6 +7,6 @@ export class GetWalletUseCase {
 
   async execute(userEmail: string): Promise<number> {
     console.log(`Getting wallet balance for user: ${userEmail}`);
-    return this.walletRepository.getWalletBalance(userEmail);
+    return await this.walletRepository.getWalletBalance(userEmail);
   }
 }
