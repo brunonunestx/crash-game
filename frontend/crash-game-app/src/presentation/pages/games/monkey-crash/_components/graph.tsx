@@ -23,14 +23,21 @@ const FLY_DURATION = 1400
 const CURVE_EXPONENT = 0.22
 const CURVE_X_STEP = 3
 
-// Pixels per natural log unit — controls vertical spacing between multipliers
 const LOG_SCALE_FACTOR = 0.22
 
-const ALL_Y_LABELS = [1, 2, 4, 8, 16, 32, 64, 128, 256].map((m) => ({
-  label: `${m}x`,
-  M: m,
+const buildLabels = () => {
+  const labels = []
+  let m = 1
+  while (m <= 1000) {
+    labels.push({ label: `${m}x`, M: m })
+    m *= 2
+  }
+  return labels
+}
+const ALL_Y_LABELS = buildLabels().map((m) => ({
+  label: `${m.label}`,
+  M: m.M,
 }))
-
 
 export function Graph({
   multiplierRef,
@@ -119,8 +126,8 @@ export function Graph({
       ctx.scale(dpr, dpr)
       ctx.clearRect(0, 0, W, H)
 
-      const AXIS_LEFT = 36
-      const AXIS_BOTTOM = 24
+      const AXIS_LEFT = 0
+      const AXIS_BOTTOM = 0
 
       const elapsed =
         startTimeRef.current !== null
@@ -133,23 +140,32 @@ export function Graph({
 
       const tipX = Math.floor(elapsed * 60)
 
-      // World space: X grows right, Y grows upward (negative in canvas coords)
       const tipWorldX = tipX * CURVE_X_STEP
       const currentM = Math.exp((tipX / 60) * CURVE_EXPONENT)
       const tipWorldY = -Math.log(currentM) * LOG_SCALE
 
-      // Camera: keep monkey fixed at (monkeyScreenX, monkeyScreenY)
       const monkeyScreenX = Math.min(tipWorldX + 60, W * 0.4)
       const monkeyScreenY = H * 0.5
       const camOffsetX = monkeyScreenX - tipWorldX
       const camOffsetY = monkeyScreenY - tipWorldY
 
-      // Y labels: dynamic, show only multipliers visible on screen
-      ctx.font = '11px monospace'
-      ctx.textAlign = 'right'
-      ctx.textBaseline = 'middle'
+      const GRID_SIZE = 28
+      ctx.strokeStyle = 'rgba(255,255,255,0.035)'
+      ctx.lineWidth = 0.5
+      for (let gy = 0; gy < H - AXIS_BOTTOM; gy += GRID_SIZE) {
+        ctx.beginPath()
+        ctx.moveTo(AXIS_LEFT, gy)
+        ctx.lineTo(W, gy)
+        ctx.stroke()
+      }
+      for (let gx = AXIS_LEFT; gx < W; gx += GRID_SIZE) {
+        ctx.beginPath()
+        ctx.moveTo(gx, 0)
+        ctx.lineTo(gx, H - AXIS_BOTTOM)
+        ctx.stroke()
+      }
 
-      for (const { label, M } of ALL_Y_LABELS) {
+      for (const { M } of ALL_Y_LABELS) {
         const screenY = monkeyScreenY + Math.log(currentM / M) * LOG_SCALE
         if (screenY < 0 || screenY > H - AXIS_BOTTOM) continue
 
@@ -159,15 +175,9 @@ export function Graph({
         ctx.moveTo(AXIS_LEFT, screenY)
         ctx.lineTo(W, screenY)
         ctx.stroke()
-
-        ctx.fillStyle = 'rgba(255,255,255,0.35)'
-        ctx.fillText(label, AXIS_LEFT - 4, screenY)
       }
 
-      // X labels — scrolling vertical lines in world space
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'bottom'
-      const X_INTERVAL_FRAMES = 5 * 60 // every 5 seconds
+      const X_INTERVAL_FRAMES = 1 * 60
       const xIntervalWorld = X_INTERVAL_FRAMES * CURVE_X_STEP
       const visibleWorldLeft = AXIS_LEFT - camOffsetX
       const visibleWorldRight = W - camOffsetX
@@ -182,11 +192,8 @@ export function Graph({
         ctx.moveTo(screenX, 0)
         ctx.lineTo(screenX, H - AXIS_BOTTOM)
         ctx.stroke()
-        ctx.fillStyle = 'rgba(255,255,255,0.35)'
-        ctx.fillText(`${i * 5}s`, screenX, H - 4)
       }
 
-      // Curve in world space with camera transform
       ctx.save()
       ctx.translate(camOffsetX, camOffsetY)
       ctx.beginPath()
@@ -205,7 +212,6 @@ export function Graph({
       ctx.shadowBlur = 0
       ctx.restore()
 
-      // Monkey
       const flyAway = flyAwayRef.current
       const flyElapsed = flyAway ? now - flyAway.startTime : 0
       const flyDone = flyElapsed > FLY_DURATION

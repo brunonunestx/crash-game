@@ -105,6 +105,26 @@ export class BetRepository {
     });
   }
 
+  async findBetsByRoundId(roundId: string): Promise<Bet[]> {
+    const bets = await this.database.bet.findMany({
+      where: { roundId },
+      orderBy: { createdAt: 'desc' },
+    })
+
+    return bets.map(
+      (bet) =>
+        new Bet({
+          id: bet.id,
+          userEmail: bet.userEmail,
+          roundId: bet.roundId,
+          amount: bet.amount,
+          status: bet.status,
+          cashoutAt: bet.cashoutAt ?? undefined,
+          createdAt: bet.createdAt,
+        }),
+    )
+  }
+
   async closeManyBets(bets: Bet[]): Promise<void> {
     const ids = bets.map((bet) => bet.id);
 

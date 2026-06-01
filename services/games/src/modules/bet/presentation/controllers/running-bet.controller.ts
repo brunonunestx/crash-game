@@ -1,9 +1,10 @@
-import { Body, Controller, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req } from "@nestjs/common";
 import { CreateBet } from "../../application/use-cases/create-bet.use-case";
 import { CreateBetDto } from "../dto/create-bet.dto";
 import { Authenticated } from "@/providers/auth/auth.decorator";
 import { CancelBet } from "../../application/use-cases/cancel-bet.use-case";
 import { CashOutUseCase } from "../../application/use-cases/cash-out.use-case";
+import { GetRoundBets } from "../../application/use-cases/get-round-bets.use-case";
 
 @Controller("bet")
 export class BetController {
@@ -11,6 +12,7 @@ export class BetController {
     private readonly createBetUseCase: CreateBet,
     private readonly cancelBetUseCase: CancelBet,
     private readonly cashoutBetUseCase: CashOutUseCase,
+    private readonly getRoundBetsUseCase: GetRoundBets,
   ) {}
 
   @Authenticated()
@@ -39,5 +41,10 @@ export class BetController {
     return this.cashoutBetUseCase.execute({
       userEmail: user.payload.email,
     });
+  }
+
+  @Get("round/:roundId")
+  getRoundBets(@Param("roundId") roundId: string) {
+    return this.getRoundBetsUseCase.execute({ roundId });
   }
 }
