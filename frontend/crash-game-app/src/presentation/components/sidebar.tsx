@@ -1,7 +1,9 @@
 import { routesConfig } from '#/routes/routes.config'
 import { LogOutIcon } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
 
 export function Sidebar() {
+  const navigate = useNavigate()
   return (
     <div className="w-64 h-[100dvh] flex flex-col justify-between bg-background text-white p-4">
       <div>
@@ -15,7 +17,10 @@ export function Sidebar() {
             .filter((route) => route.showInSidebar)
             .map((route) => (
               <li key={route.path} className="mb-2">
-                <div className="hover:bg-gray-700 rounded-xl flex items-center justify-start px-4 py-2 w-full">
+                <div
+                  onClick={() => navigate({ to: route.path })}
+                  className="hover:bg-gray-700 rounded-xl flex items-center justify-start px-4 py-2 w-full"
+                >
                   {route.icon && <route.icon className="inline-block mr-2" />}
                   {route.name}
                 </div>
