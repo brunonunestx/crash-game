@@ -1,6 +1,8 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { RoundStatus } from '@crash-game/types'
+import { gameTimings } from '@crash-game/constants'
+import { Clock } from 'lucide-react'
 
 type FlyAway = {
   startTime: number
@@ -57,6 +59,22 @@ export function Graph({
   const crashedTipRef = useRef<{ x: number; y: number } | null>(null)
   const crashedRef = useRef(false)
   const bettingRef = useRef(false)
+
+  const [timeLeft, setTimeLeft] = useState(gameTimings.bettingDurationMs)
+
+  useEffect(() => {
+    if (status !== RoundStatus.BETTING) {
+      setTimeLeft(gameTimings.bettingDurationMs)
+      return
+    }
+    const startedAt = Date.now()
+    const interval = setInterval(() => {
+      setTimeLeft(
+        Math.max(0, gameTimings.bettingDurationMs - (Date.now() - startedAt)),
+      )
+    }, 100)
+    return () => clearInterval(interval)
+  }, [status])
 
   useEffect(() => {
     if (!rocketSrc) return
@@ -265,14 +283,17 @@ export function Graph({
   }, [])
 
   return (
-    <div className="relative w-full h-full bg-background rounded-lg overflow-hidden">
+    <div className="relative w-full h-full bg-background border border-golden rounded-lg overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
       {status === RoundStatus.BETTING && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="text-2xl font-bold text-primary animate-pulse">
-            Apostas abertas
-          </span>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+          <div className="flex items-center gap-2 text-primary">
+            <Clock size={36} strokeWidth={2} />
+            <span className="text-5xl font-bold font-black-ops-one-regular">
+              {Math.ceil(timeLeft / 1000)}s
+            </span>
+          </div>
         </div>
       )}
 

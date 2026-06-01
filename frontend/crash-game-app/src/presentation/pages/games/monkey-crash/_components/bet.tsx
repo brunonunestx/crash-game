@@ -100,9 +100,8 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
 
   return (
     <Box className="w-full h-full items-start justify-start gap-0 p-0 overflow-hidden">
-      {/* Tabs */}
       <div className="flex w-full border-b border-golden">
-        {(['manual', 'auto'] as Tab[]).map((t) => (
+        {(['manual'] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -124,13 +123,8 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
           </div>
         ) : (
           <>
-            {/* Timer */}
             {isBetting && (
               <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-xs text-foreground-variant">
-                  <span>Tempo para apostar</span>
-                  <span>{Math.ceil(timeLeft / 1000)}s</span>
-                </div>
                 <div className="w-full h-1.5 bg-background rounded-full overflow-hidden">
                   <div
                     className={`h-full rounded-full transition-all duration-100 ${timerColor}`}
@@ -140,7 +134,6 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
               </div>
             )}
 
-            {/* Bet amount */}
             <div className="flex flex-col gap-2">
               <span className="text-foreground-variant text-xs font-semibold uppercase tracking-wide">
                 Valor da aposta
@@ -188,7 +181,6 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
               </div>
             </div>
 
-            {/* Main action button */}
             <div className="mt-auto">
               {isCashOutMode ? (
                 <ActionButton

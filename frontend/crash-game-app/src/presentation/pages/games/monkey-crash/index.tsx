@@ -93,10 +93,6 @@ export function MonkeyCrashPage() {
 
   return (
     <div className="p-6 flex flex-col gap-3 h-[calc(100dvh-4rem)] max-w-[90dvw] overflow-hidden">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-bold text-primary">Monkey Crash</h2>
-      </div>
-
       <RoundHistory history={history} />
 
       <div className="flex gap-4 flex-1 min-h-0">
