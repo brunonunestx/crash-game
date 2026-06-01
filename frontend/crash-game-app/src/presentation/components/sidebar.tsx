@@ -2,10 +2,23 @@ import { useWallet } from '#/data/queries/wallets/use-wallet'
 import { routesConfig } from '#/routes/routes.config'
 import { LogOutIcon } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 
 export function Sidebar() {
+  const [userEmail, setUserEmail] = useState<string | null>(null)
   const navigate = useNavigate()
   const { useBalance } = useWallet()
+
+  useEffect(() => {
+    const tokens = localStorage.getItem('user_tokens')
+    console.log(JSON.parse(tokens || '{}'))
+    const accessToken = tokens ? JSON.parse(tokens).access_token : null
+
+    const parsedPayload = JSON.parse(atob(accessToken.split('.')[1]))
+
+    setUserEmail(parsedPayload.email)
+  }, [])
+
   return (
     <div className="w-64 h-[100dvh] flex flex-col justify-between bg-background text-white p-4">
       <div>
@@ -21,7 +34,7 @@ export function Sidebar() {
               <li key={route.path} className="mb-2">
                 <div
                   onClick={() => navigate({ to: route.path })}
-                  className="hover:bg-gray-700 rounded-xl flex items-center justify-start px-4 py-2 w-full"
+                  className="hover:bg-gray-700 text-sm cursor-pointer rounded-xl flex items-center justify-start px-4 py-2 text-primary w-full"
                 >
                   {route.icon && <route.icon className="inline-block mr-2" />}
                   {route.name}
@@ -33,12 +46,12 @@ export function Sidebar() {
 
       <div className="flex flex-col items-center">
         <hr className="border-golden my-4 w-full" />
-        <div className="hover:bg-gray-700 rounded-xl flex flex-col items-left justify-start px-4 py-2 w-full">
-          <div>
+        <div className="text-primary rounded-xl text-sm flex flex-col items-left justify-start px-4 py-2 w-full">
+          <div className="flex items-center">
             {routesConfig.profile.icon && (
               <routesConfig.profile.icon className="inline-block mr-2" />
             )}
-            {routesConfig.profile.name}
+            <div>{userEmail}</div>
           </div>
 
           <p className="text-gray-400 text-sm">
@@ -47,7 +60,7 @@ export function Sidebar() {
               : `R$ ${useBalance.data?.toFixed(2) ?? '--'}`}
           </p>
         </div>
-        <div className="hover:bg-gray-700 rounded-xl flex items-center justify-start px-4 py-2 w-full">
+        <div className="hover:bg-gray-700 text-sm cursor-pointer text-primary rounded-xl flex items-center justify-start px-4 py-2 w-full">
           <LogOutIcon className="inline-block mr-2" />
           Sair
         </div>
