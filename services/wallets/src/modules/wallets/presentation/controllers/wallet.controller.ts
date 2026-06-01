@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req } from "@nestjs/common";
+import { Body, Controller, Get, Post, Query, Req } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateWalletUseCase } from "../../application/use-cases/create-wallet.use-case";
 import { Authenticated } from "@/providers/auth/auth.decorator";
@@ -6,6 +6,8 @@ import { GetWalletUseCase } from "../../application/use-cases/get-wallet.use-cas
 import { DepositWalletUseCase } from "../../application/use-cases/deposit-wallet.use-case";
 import { WithdrawWalletUseCase } from "../../application/use-cases/withdraw-wallet.use-case";
 import { GetBalanceDto } from "../dto/get-balance.dto";
+import { CanBetDto } from "../dto/can-bet.dto";
+import { ValidateBetUseCase } from "../../application/use-cases/validate-bet.use-case";
 
 @ApiTags("wallets")
 @Controller("")
@@ -15,6 +17,7 @@ export class WalletController {
     private readonly getWalletUseCase: GetWalletUseCase,
     private readonly depositWalletUseCase: DepositWalletUseCase,
     private readonly withdrawWalletUseCase: WithdrawWalletUseCase,
+    private readonly validateBetUseCase: ValidateBetUseCase,
   ) {}
 
   @Authenticated()
@@ -60,5 +63,22 @@ export class WalletController {
       request.user.payload.email,
       body.amount,
     );
+  }
+
+  @Get("/can-bet")
+  @ApiOperation({
+    summary: "Check if authenticated user can place a bet",
+  })
+  @ApiResponse({
+    status: 200,
+    description: "Indicates if the user can place a bet",
+    schema: { type: "boolean" },
+  })
+  async getBalance(
+    @Query("userEmail") userEmail: string,
+    @Query("betAmount") betAmount: number,
+  ) {
+    const canBet = await this.validateBetUseCase.execute(userEmail, betAmount);
+    return new CanBetDto(canBet);
   }
 }

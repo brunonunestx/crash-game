@@ -7,6 +7,7 @@ import { DepositWalletUseCase } from "./application/use-cases/deposit-wallet.use
 import { WithdrawWalletUseCase } from "./application/use-cases/withdraw-wallet.use-case";
 import { LedgerModule } from "../ledger/ledger.module";
 import { UpdateBalanceUseCase } from "./application/use-cases/update-balance.use-case";
+import { ValidateBetUseCase } from "./application/use-cases/validate-bet.use-case";
 
 @Module({
   imports: [forwardRef(() => LedgerModule)],
@@ -18,6 +19,7 @@ import { UpdateBalanceUseCase } from "./application/use-cases/update-balance.use
     WithdrawWalletUseCase,
     UpdateBalanceUseCase,
     WalletRepository,
+    ValidateBetUseCase,
   ],
   exports: [UpdateBalanceUseCase],
 })
