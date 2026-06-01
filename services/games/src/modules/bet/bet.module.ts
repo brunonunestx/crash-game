@@ -9,6 +9,7 @@ import { CashOutUseCase } from "./application/use-cases/cash-out.use-case";
 import { FindWinnersUseCase } from "./application/use-cases/find-winners.use-case";
 import { CloseOpenedBetsUseCase } from "./application/use-cases/close-opened-bets.use-case";
 import { GetRoundBets } from "./application/use-cases/get-round-bets.use-case";
+import { GetMyBets } from "./application/use-cases/get-my-bets.use-case";
 import { RabbitMQModule } from "@/providers/rabbitmq/rabbitmq.module";
 
 @Module({
@@ -21,6 +22,7 @@ import { RabbitMQModule } from "@/providers/rabbitmq/rabbitmq.module";
     FindWinnersUseCase,
     CloseOpenedBetsUseCase,
     GetRoundBets,
+    GetMyBets,
     BetRepository,
   ],
   exports: [

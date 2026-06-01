@@ -1,7 +1,7 @@
 import { centsToDouble } from '@crash-game/utils'
 import { BaseRepository } from '../base.repository'
 
-export type LedgerEntryType = 'LOSS' | 'WIN' | 'DEPOSIT' | 'WITHDRAW'
+export type LedgerEntryType = 'LOSS' | 'WIN' | 'DEPOSIT' | 'WITHDRAW' | 'BET_CANCELED'
 
 export type LedgerEntry = {
   id: string
@@ -16,6 +16,7 @@ type LedgerEntryRaw = {
   type: LedgerEntryType
   createdAt: string
 }
+
 
 export type LedgerPage = {
   ledgerItems: LedgerEntry[]

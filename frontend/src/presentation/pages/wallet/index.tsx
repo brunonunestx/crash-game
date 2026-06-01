@@ -4,7 +4,7 @@ import type { LedgerEntry, LedgerEntryType } from '#/data/repositories/wallets/l
 import { Box } from '#/presentation/components/box'
 import { Button } from '#/presentation/components/button'
 import { Input } from '#/presentation/components/input'
-import { ArrowDownToLine, ArrowUpFromLine, ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Wallet } from 'lucide-react'
+import { ArrowDownToLine, ArrowUpFromLine, ChevronLeft, ChevronRight, TrendingDown, TrendingUp, Wallet, Ban } from 'lucide-react'
 import React, { useState } from 'react'
 
 type Operation = 'deposit' | 'withdraw' | null
@@ -74,10 +74,10 @@ export function WalletPage() {
   }
 
   return (
-    <div className="p-8 flex flex-col gap-6">
-      <h2 className="text-2xl font-bold text-primary">Minha Carteira</h2>
+    <div className="p-8 flex flex-col gap-6 items-center">
+      <h2 className="text-2xl font-bold text-primary self-start">Minha Carteira</h2>
 
-      <Box className="w-fit min-w-80 items-start gap-1 py-6 px-8 border-primary/30 bg-primary/5">
+      <Box className="w-fit min-w-80 items-center gap-1 py-6 px-8 border-primary/30 bg-primary/5">
         <p className="text-foreground-variant text-sm">Saldo disponível</p>
         <p className="text-4xl font-bold text-primary">
           {(useBalance.data ?? 0).toLocaleString('pt-BR', {
@@ -149,16 +149,16 @@ export function WalletPage() {
           </div>
         </Box>
       )}
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 w-full">
         <h3 className="text-lg font-semibold text-foreground">
           Histórico de transações
         </h3>
 
         <Box className="w-full items-start gap-0 p-0 overflow-hidden">
-          <div className="grid grid-cols-[1fr_auto_auto] text-xs text-foreground-variant px-5 py-2 border-b border-white/5 w-full gap-4">
+          <div className="grid grid-cols-[minmax(10rem,1fr)_8rem_8rem] text-xs text-foreground-variant px-5 py-2 border-b border-white/5 w-full">
             <span>Tipo</span>
-            <span className="text-right w-28">Valor</span>
-            <span className="text-right w-32">Data</span>
+            <span className="text-right">Valor</span>
+            <span className="text-right">Data</span>
           </div>
 
           {ledgerLoading ? (
@@ -235,22 +235,27 @@ const typeConfig: Record<
     badgeClass: 'text-red-400 bg-red-400/10 border-red-400/20',
     icon: <TrendingDown size={12} />,
   },
+  BET_CANCELED: {
+    label: 'Aposta cancelada',
+    badgeClass: 'text-zinc-400 bg-zinc-400/10 border-zinc-400/20',
+    icon: <Ban size={12} />,
+  },
 }
 
 function LedgerRow({ entry }: { entry: LedgerEntry }) {
   const config = typeConfig[entry.type]
-  const isPositive = entry.type === 'DEPOSIT' || entry.type === 'WIN'
+  const isPositive = entry.type === 'DEPOSIT' || entry.type === 'WIN' || entry.type === 'BET_CANCELED'
 
   return (
-    <div className="grid grid-cols-[1fr_auto_auto] text-sm px-5 py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors w-full gap-4 items-center">
+    <div className="grid grid-cols-[minmax(10rem,1fr)_8rem_8rem] text-sm px-5 py-3 border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors w-full items-center">
       <span
-        className={`inline-flex items-center gap-1.5 self-start w-fit px-2 py-0.5 rounded-full border text-xs font-medium ${config.badgeClass}`}
+        className={`inline-flex items-center gap-1.5 w-fit px-2 py-0.5 rounded-full border text-xs font-medium ${config.badgeClass}`}
       >
         {config.icon}
         {config.label}
       </span>
       <span
-        className={`text-right font-medium tabular-nums w-28 ${isPositive ? 'text-green-400' : 'text-red-400'}`}
+        className={`text-right font-medium tabular-nums ${isPositive ? 'text-green-400' : 'text-red-400'}`}
       >
         {isPositive ? '+' : '-'}{' '}
         {entry.amount.toLocaleString('pt-BR', {
@@ -258,7 +263,7 @@ function LedgerRow({ entry }: { entry: LedgerEntry }) {
           currency: 'BRL',
         })}
       </span>
-      <span className="text-right text-foreground-variant text-xs w-32">
+      <span className="text-right text-foreground-variant text-xs">
         {new Date(entry.createdAt).toLocaleString('pt-BR', {
           day: '2-digit',
           month: '2-digit',

@@ -19,26 +19,15 @@ const CHIP_AMOUNTS = [1, 2, 5, 10, 50, 100]
 export const Bet = ({ round, currentMultiplier }: BetProps) => {
   const [tab, setTab] = useState<Tab>('manual')
   const [betAmount, setBetAmount] = useState(0)
-  const [targetMultiplier, setTargetMultiplier] = useState(2.0)
   const [userAlreadyBet, setUserAlreadyBet] = useState(false)
   const [userAlreadyCashOut, setUserAlreadyCashOut] = useState(false)
   const [timeLeft, setTimeLeft] = useState(gameTimings.bettingDurationMs)
-  const [username, setUsername] = useState<string | null>(null)
 
   const userAlreadyBetRef = useRef(false)
   const userAlreadyCashOutRef = useRef(false)
   const betAmountSnapshotRef = useRef(0)
 
   const { useCreateBet, useCashOut, useCancelBet } = useBet()
-  const { useBalance } = useWallet()
-
-  useEffect(() => {
-    const tokens = localStorage.getItem('user_tokens')
-    const accessToken = tokens ? JSON.parse(tokens).access_token : null
-    if (!accessToken) return
-    const payload = JSON.parse(atob(accessToken.split('.')[1]))
-    setUsername(payload.preferred_username ?? payload.email)
-  }, [])
 
   useEffect(() => {
     if (round?.status === RoundStatus.ENDED) {
@@ -104,7 +93,6 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
         ? 'bg-yellow-400'
         : 'bg-red-500'
 
-  const potentialGain = (betAmount * targetMultiplier).toFixed(2)
   const currentGain = (
     betAmountSnapshotRef.current * currentMultiplier
   ).toFixed(2)
@@ -125,17 +113,6 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
             {t === 'manual' ? 'Manual' : 'Automático'}
           </button>
         ))}
-      </div>
-
-      <div className="flex items-center justify-between px-4 md:px-5 py-2 border-b border-golden/30">
-        <span className="text-foreground text-sm font-semibold">
-          {username ?? '...'}
-        </span>
-        <span className="text-primary text-sm font-bold">
-          {useBalance.isLoading
-            ? '...'
-            : `R$ ${(useBalance.data ?? 0).toFixed(2)}`}
-        </span>
       </div>
 
       <div className="flex flex-col gap-4 p-4 md:p-5 w-full flex-1 overflow-y-auto">
@@ -233,9 +210,7 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
                 <ActionButton
                   label="APOSTAR"
                   sub={
-                    betAmount > 0
-                      ? `POSSÍVEIS GANHOS: R$ ${potentialGain}`
-                      : 'Insira um valor'
+                    betAmount > 0 ? `POSSÍVEIS GANHOS: R$` : 'Insira um valor'
                   }
                   onClick={placeBet}
                   disabled={betAmount <= 0}

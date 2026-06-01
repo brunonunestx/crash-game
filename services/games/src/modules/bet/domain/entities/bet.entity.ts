@@ -6,6 +6,7 @@ type BetProps = {
   id?: string;
   userEmail: string;
   roundId: string;
+  roundNumber?: number;
   amount: number;
   cashoutAt?: number;
   status: BetStatusEnum;
@@ -16,6 +17,7 @@ export class Bet {
   id: string;
   userEmail: string;
   roundId: string;
+  roundNumber: number;
   amount: number;
   cashoutAt: number | undefined;
   status: BetStatus;
@@ -25,6 +27,7 @@ export class Bet {
     this.id = props.id ?? "";
     this.userEmail = props.userEmail;
     this.roundId = props.roundId;
+    this.roundNumber = props.roundNumber ?? 0;
     this.amount = props.amount;
     this.status = new BetStatus(props.status);
     this.cashoutAt = props.cashoutAt;

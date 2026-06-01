@@ -125,6 +125,41 @@ export class BetRepository {
     )
   }
 
+  async findByUserEmail(
+    userEmail: string,
+    page: number,
+    limit: number,
+  ): Promise<{ bets: Bet[]; total: number }> {
+    const skip = (page - 1) * limit;
+
+    const [records, total] = await Promise.all([
+      this.database.bet.findMany({
+        where: { userEmail },
+        include: { round: { select: { nounce: true } } },
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+      }),
+      this.database.bet.count({ where: { userEmail } }),
+    ]);
+
+    const bets = records.map(
+      (bet) =>
+        new Bet({
+          id: bet.id,
+          userEmail: bet.userEmail,
+          roundId: bet.roundId,
+          roundNumber: bet.round.nounce,
+          amount: bet.amount,
+          status: bet.status,
+          cashoutAt: bet.cashoutAt ?? undefined,
+          createdAt: bet.createdAt,
+        }),
+    );
+
+    return { bets, total };
+  }
+
   async closeManyBets(bets: Bet[]): Promise<void> {
     const ids = bets.map((bet) => bet.id);
 

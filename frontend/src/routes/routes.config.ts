@@ -4,6 +4,7 @@ import {
   SettingsIcon,
   Wallet2Icon,
   Gamepad2Icon,
+  ScrollTextIcon,
 } from 'lucide-react'
 
 export const routesConfig = {
@@ -24,6 +25,12 @@ export const routesConfig = {
     icon: Wallet2Icon,
     showInSidebar: true,
     name: 'Carteira',
+  },
+  betHistory: {
+    path: '/bet-history',
+    icon: ScrollTextIcon,
+    showInSidebar: true,
+    name: 'Histórico',
   },
   settings: {
     path: '/settings',
