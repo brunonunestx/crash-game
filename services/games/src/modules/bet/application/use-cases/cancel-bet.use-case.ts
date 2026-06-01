@@ -2,12 +2,15 @@ import { UseCase } from "@/shared/patterns/use-case";
 import { BetRepository } from "../../infrastructure/repositories/bet.repository";
 import { GetRound } from "@/modules/round/application/use-cases/get-round.use-case";
 import { Injectable } from "@nestjs/common";
+import { PublishMessagesUseCase } from "@/providers/rabbitmq/application/use-cases/publish-message.use-case";
+import { EventType } from "generated/prisma/client";
 
 @Injectable()
 export class CancelBet extends UseCase<{ userEmail: string }, void> {
   constructor(
     private readonly betRepository: BetRepository,
     private readonly getRound: GetRound,
+    private readonly publishMessagesUseCase: PublishMessagesUseCase,
   ) {
     super();
   }
@@ -28,5 +31,15 @@ export class CancelBet extends UseCase<{ userEmail: string }, void> {
     activeBet.cancel();
 
     await this.betRepository.updateBet(activeBet);
+
+    await this.publishMessagesUseCase.execute({
+      messages: [
+        {
+          eventType: EventType.BET_CANCELED,
+          userEmail,
+          amount: activeBet.amount,
+        },
+      ],
+    });
   }
 }

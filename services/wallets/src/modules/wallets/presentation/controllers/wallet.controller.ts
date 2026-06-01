@@ -8,6 +8,7 @@ import { WithdrawWalletUseCase } from "../../application/use-cases/withdraw-wall
 import { GetBalanceDto } from "../dto/get-balance.dto";
 import { CanBetDto } from "../dto/can-bet.dto";
 import { ValidateBetUseCase } from "../../application/use-cases/validate-bet.use-case";
+import { InternalOnly } from "@/providers/auth/auth.decorator";
 
 @ApiTags("wallets")
 @Controller("")
@@ -65,6 +66,7 @@ export class WalletController {
     );
   }
 
+  @InternalOnly()
   @Get("/can-bet")
   @ApiOperation({
     summary: "Check if authenticated user can place a bet",

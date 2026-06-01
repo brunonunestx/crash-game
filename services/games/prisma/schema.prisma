@@ -51,6 +51,7 @@ model Bet {
 enum EventType {
   BET_DONE
   BET_WINNER
+  BET_CANCELED
 }
 model Outbox {
   id        String   @id @default(uuid())

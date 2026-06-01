@@ -22,12 +22,22 @@ export class CreateBet extends UseCase<
   async execute(input: CreateBetDto & { userEmail: string }): Promise<Bet> {
     const currentRound = await this.getRound.execute();
 
+    if (!currentRound.status.isBetting()) {
+      throw new Error("Bets are only allowed during the betting phase.");
+    }
+
     const activeBet = await this.betRepository.getActiveBetByUserEmail(
       input.userEmail,
     );
 
     if (activeBet) {
       throw new Error("User already has an active bet.");
+    }
+
+    const canBet = await this.validateBetAmount(input.userEmail, input.amount);
+
+    if (!canBet) {
+      throw new Error("User does not have enough balance to place this bet.");
     }
 
     const bet = new Bet({
@@ -50,5 +60,29 @@ export class CreateBet extends UseCase<
     });
 
     return createdBet;
+  }
+
+  private async validateBetAmount(
+    userEmail: string,
+    amount: number,
+  ): Promise<boolean> {
+    if (amount <= 0) {
+      throw new Error("Bet amount must be greater than zero.");
+    }
+
+    const response = await fetch(
+      `http://localhost:4002/wallets/can-bet?userEmail=${userEmail}&betAmount=${amount}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": process.env.INTERNAL_API_KEY ?? "",
+        },
+      },
+    );
+
+    const { canBet } = await response.json();
+
+    return canBet;
   }
 }

@@ -10,7 +10,7 @@ type SidebarProps = {
 }
 
 export function Sidebar({ open, onClose }: SidebarProps) {
-  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
   const navigate = useNavigate()
   const { useBalance } = useWallet()
 
@@ -21,7 +21,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
     const parsedPayload = JSON.parse(atob(accessToken.split('.')[1]))
 
-    setUserEmail(parsedPayload.email)
+    setUserName(parsedPayload.preferred_username ?? parsedPayload.email)
   }, [])
 
   function handleNavigate(path: string) {
@@ -70,7 +70,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             {routesConfig.profile.icon && (
               <routesConfig.profile.icon className="inline-block mr-2" />
             )}
-            <div>{userEmail}</div>
+            <div>{userName}</div>
           </div>
 
           <p className="text-gray-400 text-sm">

@@ -1,4 +1,5 @@
 import { useBet } from '#/data/queries/games/use-bet'
+import { useWallet } from '#/data/queries/wallets/use-wallet'
 import { Box } from '#/presentation/components/box'
 import { Toast } from '#/presentation/components/toast'
 import { RoundStatus, type IRound } from '@crash-game/types'
@@ -22,12 +23,22 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
   const [userAlreadyBet, setUserAlreadyBet] = useState(false)
   const [userAlreadyCashOut, setUserAlreadyCashOut] = useState(false)
   const [timeLeft, setTimeLeft] = useState(gameTimings.bettingDurationMs)
+  const [username, setUsername] = useState<string | null>(null)
 
   const userAlreadyBetRef = useRef(false)
   const userAlreadyCashOutRef = useRef(false)
   const betAmountSnapshotRef = useRef(0)
 
   const { useCreateBet, useCashOut, useCancelBet } = useBet()
+  const { useBalance } = useWallet()
+
+  useEffect(() => {
+    const tokens = localStorage.getItem('user_tokens')
+    const accessToken = tokens ? JSON.parse(tokens).access_token : null
+    if (!accessToken) return
+    const payload = JSON.parse(atob(accessToken.split('.')[1]))
+    setUsername(payload.preferred_username ?? payload.email)
+  }, [])
 
   useEffect(() => {
     if (round?.status === RoundStatus.ENDED) {
@@ -114,6 +125,17 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
             {t === 'manual' ? 'Manual' : 'Automático'}
           </button>
         ))}
+      </div>
+
+      <div className="flex items-center justify-between px-4 md:px-5 py-2 border-b border-golden/30">
+        <span className="text-foreground text-sm font-semibold">
+          {username ?? '...'}
+        </span>
+        <span className="text-primary text-sm font-bold">
+          {useBalance.isLoading
+            ? '...'
+            : `R$ ${(useBalance.data ?? 0).toFixed(2)}`}
+        </span>
       </div>
 
       <div className="flex flex-col gap-4 p-4 md:p-5 w-full flex-1 overflow-y-auto">

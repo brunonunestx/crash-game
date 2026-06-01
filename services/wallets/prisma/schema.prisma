@@ -34,6 +34,7 @@ enum TransactionType {
   WIN
   DEPOSIT
   WITHDRAW
+  BET_CANCELED
 }
 
 model Ledger {
@@ -50,6 +51,7 @@ model Ledger {
 enum EventType {
   BET_DONE
   BET_WINNER
+  BET_CANCELED
 }
 
 model Inbox {

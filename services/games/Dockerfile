@@ -2,11 +2,22 @@ FROM oven/bun:1-alpine
 
 WORKDIR /app
 
-COPY package.json ./
-RUN bun install
+# Monorepo root workspace
+COPY package.json bun.lock ./
+COPY packages/ packages/
 
-COPY . .
+# Service manifest first (layer cache)
+COPY services/games/package.json services/games/package.json
+
+RUN bun install --frozen-lockfile
+
+# Service source
+COPY services/games/ services/games/
+
+WORKDIR /app/services/games
+
+RUN bunx prisma generate
 
 EXPOSE 4001
 
-CMD ["bun", "run", "src/main.ts"]
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun run src/main.ts"]

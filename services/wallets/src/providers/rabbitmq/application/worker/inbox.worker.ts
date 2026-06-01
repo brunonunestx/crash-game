@@ -19,12 +19,15 @@ export class InboxWorker {
 
     if (pendingMessages.length === 0) return;
 
-    this.logger.log(`Found ${pendingMessages.length} pending messages in the inbox.`);
+    this.logger.log(
+      `Found ${pendingMessages.length} pending messages in the inbox.`,
+    );
 
     const processedIds: string[] = [];
 
     for (const message of pendingMessages) {
       try {
+        console.log(message.eventType);
         await this.createLedgerItemUseCase.execute({
           userEmail: message.payload.userEmail,
           amount: message.payload.amount,

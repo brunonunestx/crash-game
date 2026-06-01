@@ -16,4 +16,9 @@ export class Subscriber {
   async handleBetWinner(@Payload() payload: MessageDTO) {
     await this.registerInboxUseCase.execute(EventType.BET_WINNER, payload);
   }
+
+  @EventPattern(EventType.BET_CANCELED)
+  async handleBetCanceled(@Payload() payload: MessageDTO) {
+    await this.registerInboxUseCase.execute(EventType.BET_CANCELED, payload);
+  }
 }

@@ -28,6 +28,10 @@ export class RegisterInbox {
       return;
     }
 
+    console.log("&&7");
+    console.log(inbox);
+    console.log("&&7");
+
     await this.inboxRepository.save(inbox);
   }
 }

@@ -8,6 +8,7 @@ import { UpdateBalanceUseCase } from "@/modules/wallets/application/use-cases/up
 const mapType = {
   [EventType.BET_DONE]: TransactionType.LOSS,
   [EventType.BET_WINNER]: TransactionType.WIN,
+  [EventType.BET_CANCELED]: TransactionType.BET_CANCELED,
   [TransactionType.DEPOSIT]: TransactionType.DEPOSIT,
   [TransactionType.WITHDRAW]: TransactionType.WITHDRAW,
 };
