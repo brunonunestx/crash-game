@@ -1,9 +1,16 @@
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Sidebar } from '#/presentation/components/sidebar'
 import { Header } from '#/presentation/components/header'
 
-export const Route = createFileRoute('/_layout')({ component: Layout })
+export const Route = createFileRoute('/_layout')({
+  beforeLoad: ({ location }) => {
+    if (location.pathname === '/') {
+      throw redirect({ to: '/login' })
+    }
+  },
+  component: Layout,
+})
 
 function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)

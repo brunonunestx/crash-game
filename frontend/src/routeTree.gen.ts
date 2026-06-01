@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LayoutWalletRouteImport } from './routes/_layout/wallet'
 import { Route as LayoutHomeRouteImport } from './routes/_layout/home'
 import { Route as LayoutBetHistoryRouteImport } from './routes/_layout/bet-history'
+import { Route as LayoutGamesIndexRouteImport } from './routes/_layout/games/index'
 import { Route as LayoutGamesMonkeyCrashRouteImport } from './routes/_layout/games/monkey-crash'
 
 const LoginRoute = LoginRouteImport.update({
@@ -46,6 +47,11 @@ const LayoutBetHistoryRoute = LayoutBetHistoryRouteImport.update({
   path: '/bet-history',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutGamesIndexRoute = LayoutGamesIndexRouteImport.update({
+  id: '/games/',
+  path: '/games/',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutGamesMonkeyCrashRoute = LayoutGamesMonkeyCrashRouteImport.update({
   id: '/games/monkey-crash',
   path: '/games/monkey-crash',
@@ -59,6 +65,7 @@ export interface FileRoutesByFullPath {
   '/home': typeof LayoutHomeRoute
   '/wallet': typeof LayoutWalletRoute
   '/games/monkey-crash': typeof LayoutGamesMonkeyCrashRoute
+  '/games/': typeof LayoutGamesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -67,6 +74,7 @@ export interface FileRoutesByTo {
   '/home': typeof LayoutHomeRoute
   '/wallet': typeof LayoutWalletRoute
   '/games/monkey-crash': typeof LayoutGamesMonkeyCrashRoute
+  '/games': typeof LayoutGamesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,6 +85,7 @@ export interface FileRoutesById {
   '/_layout/home': typeof LayoutHomeRoute
   '/_layout/wallet': typeof LayoutWalletRoute
   '/_layout/games/monkey-crash': typeof LayoutGamesMonkeyCrashRoute
+  '/_layout/games/': typeof LayoutGamesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/wallet'
     | '/games/monkey-crash'
+    | '/games/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -95,6 +105,7 @@ export interface FileRouteTypes {
     | '/home'
     | '/wallet'
     | '/games/monkey-crash'
+    | '/games'
   id:
     | '__root__'
     | '/'
@@ -104,6 +115,7 @@ export interface FileRouteTypes {
     | '/_layout/home'
     | '/_layout/wallet'
     | '/_layout/games/monkey-crash'
+    | '/_layout/games/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -156,6 +168,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutBetHistoryRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/games/': {
+      id: '/_layout/games/'
+      path: '/games'
+      fullPath: '/games/'
+      preLoaderRoute: typeof LayoutGamesIndexRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/games/monkey-crash': {
       id: '/_layout/games/monkey-crash'
       path: '/games/monkey-crash'
@@ -171,6 +190,7 @@ interface LayoutRouteChildren {
   LayoutHomeRoute: typeof LayoutHomeRoute
   LayoutWalletRoute: typeof LayoutWalletRoute
   LayoutGamesMonkeyCrashRoute: typeof LayoutGamesMonkeyCrashRoute
+  LayoutGamesIndexRoute: typeof LayoutGamesIndexRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -178,6 +198,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutHomeRoute: LayoutHomeRoute,
   LayoutWalletRoute: LayoutWalletRoute,
   LayoutGamesMonkeyCrashRoute: LayoutGamesMonkeyCrashRoute,
+  LayoutGamesIndexRoute: LayoutGamesIndexRoute,
 }
 
 const LayoutRouteWithChildren =
