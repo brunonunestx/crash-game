@@ -9,7 +9,7 @@ COPY packages/ packages/
 # Service manifest first (layer cache)
 COPY services/wallets/package.json services/wallets/package.json
 
-RUN bun install --frozen-lockfile
+RUN sed -i 's|"frontend",\?||g; s|,\s*"frontend"||g' package.json && bun install
 
 # Service source
 COPY services/wallets/ services/wallets/
@@ -20,4 +20,4 @@ RUN bunx prisma generate
 
 EXPOSE 4002
 
-CMD ["sh", "-c", "bunx prisma migrate deploy && bun run src/main.ts"]
+CMD ["sh", "-c", "bunx prisma migrate deploy && bun prisma/seed.ts && bun run src/main.ts"]

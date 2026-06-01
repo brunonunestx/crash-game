@@ -9,7 +9,7 @@ COPY packages/ packages/
 # Service manifest first (layer cache)
 COPY services/games/package.json services/games/package.json
 
-RUN bun install --frozen-lockfile
+RUN sed -i 's|"frontend",\?||g; s|,\s*"frontend"||g' package.json && bun install
 
 # Service source
 COPY services/games/ services/games/

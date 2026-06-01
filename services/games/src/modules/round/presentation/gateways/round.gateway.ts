@@ -10,7 +10,7 @@ import { RoundUpdatesDto } from "../dto/gateway.dto";
 import { messages } from "@crash-game/constants";
 import { RoundEngine } from "../../application/engine/round.engine";
 
-@WebSocketGateway()
+@WebSocketGateway({ path: "/games/socket.io" })
 export class RoundGateway implements OnGatewayConnection, OnGatewayDisconnect {
   constructor(private readonly roundEngine: RoundEngine) {}
   @WebSocketServer()

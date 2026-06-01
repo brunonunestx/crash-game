@@ -70,8 +70,9 @@ export class CreateBet extends UseCase<
       throw new Error("Bet amount must be greater than zero.");
     }
 
+    const walletUrl = process.env.WALLET_SERVICE_URL ?? "http://localhost:4002";
     const response = await fetch(
-      `http://localhost:4002/wallets/can-bet?userEmail=${userEmail}&betAmount=${amount}`,
+      `${walletUrl}/wallets/can-bet?userEmail=${userEmail}&betAmount=${amount}`,
       {
         method: "GET",
         headers: {

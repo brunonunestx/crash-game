@@ -1,4 +1,4 @@
-FROM oven/bun:1-alpine AS builder
+FROM oven/bun:1-alpine
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY packages/ packages/
 # Frontend manifest first (layer cache)
 COPY frontend/package.json frontend/package.json
 
-RUN bun install --frozen-lockfile
+RUN bun install
 
 COPY frontend/ frontend/
 
@@ -26,16 +26,10 @@ ENV VITE_KEYCLOAK_REALM=$VITE_KEYCLOAK_REALM
 ENV VITE_KEYCLOAK_CLIENT_ID=$VITE_KEYCLOAK_CLIENT_ID
 ENV VITE_API_URL=$VITE_API_URL
 
+COPY frontend/serve.mjs serve.mjs
+
 RUN bun run build
-
-# ----
-
-FROM oven/bun:1-alpine
-
-WORKDIR /app
-
-COPY --from=builder /app/frontend/dist ./dist
 
 EXPOSE 3000
 
-CMD ["bun", "dist/server/server.js"]
+CMD ["bun", "serve.mjs"]

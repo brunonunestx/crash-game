@@ -1,13 +1,17 @@
 import { cronTimes } from "@crash-game/constants";
-import { Injectable } from "@nestjs/common";
+import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { AuthEngine } from "./auth.engine";
 
 @Injectable()
-export class AuthCron {
+export class AuthCron implements OnModuleInit {
   keycloakUrl = process.env.KEYCLOAK_URL;
   realm = process.env.KEYCLOAK_REALM;
   constructor(private readonly authEngine: AuthEngine) {}
+
+  async onModuleInit() {
+    await this.handleCron();
+  }
 
   @Cron(cronTimes.every.fiveSeconds)
   async handleCron() {
