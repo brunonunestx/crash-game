@@ -33,6 +33,7 @@ describe("CancelBet", () => {
     updateBet: ReturnType<typeof mock>;
   };
   let getRound: { execute: ReturnType<typeof mock> };
+  let publishMessagesUseCase: { execute: ReturnType<typeof mock> };
   let useCase: CancelBet;
 
   beforeEach(() => {
@@ -41,8 +42,13 @@ describe("CancelBet", () => {
       updateBet: mock(() => Promise.resolve()),
     };
     getRound = { execute: mock(() => Promise.resolve(makeBettingRound())) };
+    publishMessagesUseCase = { execute: mock(() => Promise.resolve()) };
 
-    useCase = new CancelBet(betRepository as never, getRound as never);
+    useCase = new CancelBet(
+      betRepository as never,
+      getRound as never,
+      publishMessagesUseCase as never,
+    );
   });
 
   it("cancela aposta e persiste bet com status CANCELED", async () => {

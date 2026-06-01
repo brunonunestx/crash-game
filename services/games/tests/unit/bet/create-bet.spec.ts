@@ -4,7 +4,9 @@ import { Bet } from "../../../src/modules/bet/domain/entities/bet.entity";
 import { Round } from "../../../src/modules/round/domain/entities/round.entity";
 import { BetStatus, EventType } from "../../../generated/prisma/enums";
 
-function makeBet(overrides: Partial<ConstructorParameters<typeof Bet>[0]> = {}) {
+function makeBet(
+  overrides: Partial<ConstructorParameters<typeof Bet>[0]> = {},
+) {
   return new Bet({
     id: "bet-1",
     roundId: "round-1",
@@ -13,6 +15,12 @@ function makeBet(overrides: Partial<ConstructorParameters<typeof Bet>[0]> = {}) 
     status: BetStatus.ACTIVE,
     ...overrides,
   });
+}
+
+function makeBettingRound() {
+  const round = new Round({ nounce: 1 });
+  round.startBetting();
+  return round;
 }
 
 function makePlayingRound() {
@@ -32,7 +40,7 @@ describe("CreateBet", () => {
   let useCase: CreateBet;
 
   beforeEach(() => {
-    const round = makePlayingRound();
+    const round = makeBettingRound();
 
     betRepository = {
       getActiveBetByUserEmail: mock(() => Promise.resolve(null)),
@@ -40,6 +48,13 @@ describe("CreateBet", () => {
     };
     getRound = { execute: mock(() => Promise.resolve(round)) };
     publishMessagesUseCase = { execute: mock(() => Promise.resolve()) };
+
+    const fetchMock = mock(() =>
+      Promise.resolve({
+        json: () => Promise.resolve({ canBet: true }),
+      } as Response),
+    );
+    global.fetch = fetchMock as never;
 
     useCase = new CreateBet(
       betRepository as never,
