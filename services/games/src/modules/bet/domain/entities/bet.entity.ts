@@ -1,3 +1,4 @@
+import { centsToDouble } from "@crash-game/utils";
 import { BetStatus } from "../value-objects/bet-status.vo";
 import { BetStatus as BetStatusEnum } from "generated/prisma/enums";
 
@@ -55,7 +56,7 @@ export class Bet {
     this.status = new BetStatus(BetStatusEnum.CANCELED);
   }
 
-  calculatePayout(multiplier: number): number {
+  calculatePayout(): number {
     if (this.status.isLost()) {
       return 0;
     }
@@ -64,6 +65,10 @@ export class Bet {
       throw new Error("Cannot calculate payout for an active bet.");
     }
 
-    return this.amount * multiplier;
+    console.log(this.amount);
+    const doubleMultiplier = centsToDouble(this.cashoutAt ?? 0);
+    const payout = Math.floor(this.amount * doubleMultiplier);
+
+    return payout;
   }
 }

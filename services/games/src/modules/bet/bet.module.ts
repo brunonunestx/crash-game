@@ -8,9 +8,10 @@ import { CancelBet } from "./application/use-cases/cancel-bet.use-case";
 import { CashOutUseCase } from "./application/use-cases/cash-out.use-case";
 import { FindWinnersUseCase } from "./application/use-cases/find-winners.use-case";
 import { CloseOpenedBetsUseCase } from "./application/use-cases/close-opened-bets.use-case";
+import { RabbitMQModule } from "@/providers/rabbitmq/rabbitmq.module";
 
 @Module({
-  imports: [AuthModule, RoundModule],
+  imports: [AuthModule, RoundModule, RabbitMQModule],
   controllers: [BetController],
   providers: [
     CreateBet,

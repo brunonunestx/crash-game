@@ -5,16 +5,11 @@ import { CloseOpenedBetsUseCase } from "@/modules/bet/application/use-cases/clos
 
 @Injectable()
 export class FinishRoundUseCase extends UseCase<{ roundId: string }, void> {
-  constructor(
-    private readonly closeOpenedBetsUseCase: CloseOpenedBetsUseCase,
-    private readonly findWinnersUseCase: FindWinnersUseCase,
-  ) {
+  constructor(private readonly closeOpenedBetsUseCase: CloseOpenedBetsUseCase) {
     super();
   }
 
   async execute({ roundId }: { roundId: string }): Promise<void> {
     await this.closeOpenedBetsUseCase.execute({ roundId });
-
-    const winners = await this.findWinnersUseCase.execute({ roundId });
   }
 }
