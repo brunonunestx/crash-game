@@ -7,7 +7,7 @@ import { CashOutUseCase } from "../../application/use-cases/cash-out.use-case";
 import { GetRoundBets } from "../../application/use-cases/get-round-bets.use-case";
 import { GetMyBets } from "../../application/use-cases/get-my-bets.use-case";
 
-@Controller("bet")
+@Controller("bets")
 export class BetController {
   constructor(
     private readonly createBetUseCase: CreateBet,

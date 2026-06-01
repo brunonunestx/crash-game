@@ -68,10 +68,19 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
   }
 
   function placeBet() {
-    userAlreadyBetRef.current = true
     betAmountSnapshotRef.current = betAmount
-    setUserAlreadyBet(true)
-    useCreateBet.mutate({ amount: betAmount })
+    useCreateBet.mutate({ amount: betAmount }, {
+      onSuccess: () => {
+        userAlreadyBetRef.current = true
+        setUserAlreadyBet(true)
+      },
+      onError: (err: unknown) => {
+        betAmountSnapshotRef.current = 0
+        const axiosMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+        const message = axiosMessage ?? (err instanceof Error ? err.message : 'Erro ao realizar aposta')
+        toast.custom(() => <Toast message={message} type="error" />)
+      },
+    })
   }
 
   function doCashOut() {
@@ -150,22 +159,6 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
                   }
                   className="flex-1 bg-transparent text-foreground text-sm outline-none disabled:opacity-50"
                 />
-                <div className="flex gap-1">
-                  <button
-                    onClick={() => setBetAmount((p) => Math.max(0, p / 2))}
-                    disabled={userAlreadyBet || betAmount <= 0}
-                    className="text-xs px-1.5 py-0.5 rounded bg-background-variant text-foreground-variant hover:text-primary disabled:opacity-40"
-                  >
-                    /2
-                  </button>
-                  <button
-                    onClick={() => setBetAmount((p) => p * 2)}
-                    disabled={userAlreadyBet || betAmount <= 0}
-                    className="text-xs px-1.5 py-0.5 rounded bg-background-variant text-foreground-variant hover:text-primary disabled:opacity-40"
-                  >
-                    x2
-                  </button>
-                </div>
               </div>
               <div className="flex gap-1.5 flex-wrap">
                 {CHIP_AMOUNTS.map((val) => (
@@ -202,7 +195,7 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
                 <ActionButton
                   label="CANCELAR APOSTA"
                   sub={`Aposta: R$ ${betAmountSnapshotRef.current.toFixed(2)}`}
-                  onClick={() => useCancelBet.mutate()}
+                  onClick={() => useCancelBet.mutate(undefined, { onSuccess: resetRound })}
                   loading={useCancelBet.isPending}
                   color="from-red-800 via-red-600 to-red-800"
                 />
@@ -215,6 +208,7 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
                   onClick={placeBet}
                   disabled={betAmount <= 0}
                   color="from-yellow-600 via-yellow-400 to-yellow-600"
+                  textColor="text-background"
                 />
               ) : (
                 <ActionButton
@@ -240,6 +234,7 @@ type ActionButtonProps = {
   loading?: boolean
   disabled?: boolean
   color: string
+  textColor?: string
 }
 
 function ActionButton({
@@ -249,6 +244,7 @@ function ActionButton({
   loading,
   disabled,
   color,
+  textColor = 'text-white',
 }: ActionButtonProps) {
   return (
     <button
@@ -256,10 +252,10 @@ function ActionButton({
       disabled={disabled || loading}
       className={`w-full rounded-xl bg-gradient-to-r ${color} flex flex-col items-center justify-center py-3 gap-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity`}
     >
-      <span className="text-white font-bold text-base tracking-wide">
+      <span className={`${textColor} font-bold text-base tracking-wide`}>
         {loading ? '...' : label}
       </span>
-      <span className="text-white/70 text-xs">{sub}</span>
+      <span className={`${textColor} opacity-70 text-xs`}>{sub}</span>
     </button>
   )
 }

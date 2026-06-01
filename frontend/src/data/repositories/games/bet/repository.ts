@@ -30,7 +30,7 @@ export type MyBetsPage = {
 
 export class BetRepository extends BaseRepository {
   constructor() {
-    super('/bet')
+    super('/bets')
   }
 
   createBet(payload: ICreateBetInput) {

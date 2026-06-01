@@ -6,7 +6,10 @@ import { PublishMessagesUseCase } from "@/providers/rabbitmq/application/use-cas
 import { EventType } from "generated/prisma/client";
 
 @Injectable()
-export class CancelBet extends UseCase<{ userEmail: string }, void> {
+export class CancelBet extends UseCase<
+  { userEmail: string },
+  { canceled: boolean }
+> {
   constructor(
     private readonly betRepository: BetRepository,
     private readonly getRound: GetRound,
@@ -15,7 +18,11 @@ export class CancelBet extends UseCase<{ userEmail: string }, void> {
     super();
   }
 
-  async execute({ userEmail }: { userEmail: string }): Promise<void> {
+  async execute({
+    userEmail,
+  }: {
+    userEmail: string;
+  }): Promise<{ canceled: boolean }> {
     const currentRound = await this.getRound.execute();
     if (!currentRound.status.isBetting()) {
       throw new Error("Cannot cancel bet in a round that is not betting.");
@@ -41,5 +48,7 @@ export class CancelBet extends UseCase<{ userEmail: string }, void> {
         },
       ],
     });
+
+    return { canceled: true };
   }
 }
