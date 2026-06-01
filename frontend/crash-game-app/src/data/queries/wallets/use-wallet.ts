@@ -9,6 +9,8 @@ export function useWallet() {
   const useBalance = useQuery({
     queryKey: walletQueryKey,
     queryFn: () => repositories.wallets.wallet.getWalletBalance(),
+    refetchInterval: 3000,
+    staleTime: 3000,
     retry: (failureCount, error: unknown) => {
       if (isAxiosNotFound(error)) return false
       return failureCount < 3

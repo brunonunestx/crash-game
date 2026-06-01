@@ -1,0 +1,28 @@
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    ports:
+      - "5434:5432"
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: wallets_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d wallets_test"]
+      interval: 3s
+      timeout: 5s
+      retries: 15
+
+  rabbitmq-test:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5674:5672"
+      - "15674:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 15

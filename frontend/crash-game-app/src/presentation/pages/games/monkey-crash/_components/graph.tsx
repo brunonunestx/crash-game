@@ -23,16 +23,14 @@ const FLY_DURATION = 1400
 const CURVE_EXPONENT = 0.22
 const CURVE_X_STEP = 3
 
-// Log scale: 1x at 88% down, 32x at 8% down
-const CHART_BOTTOM_PCT = 0.88
-const CHART_TOP_PCT = 0.08
-const LOG_REF = Math.log(32)
+// Pixels per natural log unit — controls vertical spacing between multipliers
+const LOG_SCALE_FACTOR = 0.22
 
-function curveScreenY(t: number, H: number): number {
-  const M = Math.exp(t * CURVE_EXPONENT)
-  const logM = Math.log(Math.max(M, 1))
-  return H * CHART_BOTTOM_PCT - (logM / LOG_REF) * H * (CHART_BOTTOM_PCT - CHART_TOP_PCT)
-}
+const ALL_Y_LABELS = [1, 2, 4, 8, 16, 32, 64, 128, 256].map((m) => ({
+  label: `${m}x`,
+  M: m,
+}))
+
 
 export function Graph({
   multiplierRef,
@@ -104,18 +102,6 @@ export function Graph({
 
     let rafId: number
 
-    // pct values derived from log scale: pct = BOTTOM - (log(M)/log(32)) * (BOTTOM - TOP)
-    const Y_LABELS = [
-      { label: '32x', pct: 0.08 },
-      { label: '16x', pct: 0.24 },
-      { label: '8x', pct: 0.40 },
-      { label: '4x', pct: 0.56 },
-      { label: '2x', pct: 0.72 },
-      { label: '1x', pct: 0.88 },
-    ]
-
-    const X_LABELS = ['10s', '20s', '30s', '40s']
-
     function draw(now: number) {
       const canvas = canvasRef.current
       if (!canvas) return
@@ -126,42 +112,15 @@ export function Graph({
       const W = canvas.width / dpr
       const H = canvas.height / dpr
 
+      // Pixels per log unit — scales with canvas height
+      const LOG_SCALE = H * LOG_SCALE_FACTOR
+
       ctx.save()
       ctx.scale(dpr, dpr)
       ctx.clearRect(0, 0, W, H)
 
       const AXIS_LEFT = 36
       const AXIS_BOTTOM = 24
-
-      ctx.font = '11px monospace'
-      ctx.textAlign = 'right'
-      ctx.textBaseline = 'middle'
-      for (const { label, pct } of Y_LABELS) {
-        const y = pct * H
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)'
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.moveTo(AXIS_LEFT, y)
-        ctx.lineTo(W, y)
-        ctx.stroke()
-        ctx.fillStyle = 'rgba(255,255,255,0.35)'
-        ctx.fillText(label, AXIS_LEFT - 4, y)
-      }
-
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'bottom'
-      const xSlots = X_LABELS.length + 1
-      for (let i = 0; i < X_LABELS.length; i++) {
-        const x = AXIS_LEFT + ((i + 1) / xSlots) * (W - AXIS_LEFT)
-        ctx.strokeStyle = 'rgba(255,255,255,0.06)'
-        ctx.lineWidth = 1
-        ctx.beginPath()
-        ctx.moveTo(x, 0)
-        ctx.lineTo(x, H - AXIS_BOTTOM)
-        ctx.stroke()
-        ctx.fillStyle = 'rgba(255,255,255,0.35)'
-        ctx.fillText(X_LABELS[i], x, H - 4)
-      }
 
       const elapsed =
         startTimeRef.current !== null
@@ -173,20 +132,67 @@ export function Graph({
       }
 
       const tipX = Math.floor(elapsed * 60)
+
+      // World space: X grows right, Y grows upward (negative in canvas coords)
       const tipWorldX = tipX * CURVE_X_STEP
-      // Y is computed in screen space via log scale — no Y camera offset needed
-      const tipScreenY = curveScreenY(tipX / 60, H)
+      const currentM = Math.exp((tipX / 60) * CURVE_EXPONENT)
+      const tipWorldY = -Math.log(currentM) * LOG_SCALE
 
-      const leftMargin = 60
-      const camTargetX = Math.min(tipWorldX + leftMargin, W * 0.65)
-      const camOffsetX = camTargetX - tipWorldX
+      // Camera: keep monkey fixed at (monkeyScreenX, monkeyScreenY)
+      const monkeyScreenX = Math.min(tipWorldX + 60, W * 0.4)
+      const monkeyScreenY = H * 0.5
+      const camOffsetX = monkeyScreenX - tipWorldX
+      const camOffsetY = monkeyScreenY - tipWorldY
 
+      // Y labels: dynamic, show only multipliers visible on screen
+      ctx.font = '11px monospace'
+      ctx.textAlign = 'right'
+      ctx.textBaseline = 'middle'
+
+      for (const { label, M } of ALL_Y_LABELS) {
+        const screenY = monkeyScreenY + Math.log(currentM / M) * LOG_SCALE
+        if (screenY < 0 || screenY > H - AXIS_BOTTOM) continue
+
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(AXIS_LEFT, screenY)
+        ctx.lineTo(W, screenY)
+        ctx.stroke()
+
+        ctx.fillStyle = 'rgba(255,255,255,0.35)'
+        ctx.fillText(label, AXIS_LEFT - 4, screenY)
+      }
+
+      // X labels — scrolling vertical lines in world space
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'bottom'
+      const X_INTERVAL_FRAMES = 5 * 60 // every 5 seconds
+      const xIntervalWorld = X_INTERVAL_FRAMES * CURVE_X_STEP
+      const visibleWorldLeft = AXIS_LEFT - camOffsetX
+      const visibleWorldRight = W - camOffsetX
+      const firstIdx = Math.ceil(visibleWorldLeft / xIntervalWorld)
+      const lastIdx = Math.floor(visibleWorldRight / xIntervalWorld)
+      for (let i = firstIdx; i <= lastIdx; i++) {
+        if (i <= 0) continue
+        const screenX = i * xIntervalWorld + camOffsetX
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(screenX, 0)
+        ctx.lineTo(screenX, H - AXIS_BOTTOM)
+        ctx.stroke()
+        ctx.fillStyle = 'rgba(255,255,255,0.35)'
+        ctx.fillText(`${i * 5}s`, screenX, H - 4)
+      }
+
+      // Curve in world space with camera transform
       ctx.save()
-      ctx.translate(camOffsetX, 0)
+      ctx.translate(camOffsetX, camOffsetY)
       ctx.beginPath()
       for (let x = 0; x <= elapsed * 60; x++) {
         const px = x * CURVE_X_STEP
-        const py = curveScreenY(x / 60, H)
+        const py = -Math.log(Math.exp((x / 60) * CURVE_EXPONENT)) * LOG_SCALE
         if (x === 0) ctx.moveTo(px, py)
         else ctx.lineTo(px, py)
       }
@@ -199,6 +205,7 @@ export function Graph({
       ctx.shadowBlur = 0
       ctx.restore()
 
+      // Monkey
       const flyAway = flyAwayRef.current
       const flyElapsed = flyAway ? now - flyAway.startTime : 0
       const flyDone = flyElapsed > FLY_DURATION
@@ -217,9 +224,12 @@ export function Graph({
         let rotation = 0
 
         if (!crashedRef.current || !flyAway) {
-          crashedTipRef.current = { x: camTargetX, y: tipScreenY }
-          drawX = camTargetX
-          drawY = tipScreenY
+          const bob = Math.sin(now * 0.007) * 7
+          const wobble = Math.sin(now * 0.013) * 0.04
+          crashedTipRef.current = { x: monkeyScreenX, y: monkeyScreenY + bob }
+          drawX = monkeyScreenX
+          drawY = monkeyScreenY + bob
+          rotation = wobble
         } else {
           const t = Math.min(flyElapsed / FLY_DURATION, 1)
           const eased = t * t
