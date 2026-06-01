@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { RoundStatus } from '@crash-game/types'
 import { gameTimings } from '@crash-game/constants'
-import { Clock } from 'lucide-react'
+import { Clock, Copy, Check } from 'lucide-react'
 
 type FlyAway = {
   startTime: number
@@ -19,6 +19,7 @@ type GraphProps = {
   playing: boolean
   crashed: boolean
   rocketSrc?: string
+  hashedSeed?: string
 }
 
 const FLY_DURATION = 1400
@@ -50,6 +51,7 @@ export function Graph({
   playing,
   crashed,
   rocketSrc,
+  hashedSeed,
 }: GraphProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const startTimeRef = useRef<number | null>(null)
@@ -137,7 +139,6 @@ export function Graph({
       const W = canvas.width / dpr
       const H = canvas.height / dpr
 
-      // Pixels per log unit — scales with canvas height
       const LOG_SCALE = H * LOG_SCALE_FACTOR
 
       ctx.save()
@@ -317,6 +318,35 @@ export function Graph({
           1.00x
         </span>
       )}
+
+      {hashedSeed && status !== RoundStatus.ENDED && (
+        <HashedSeedBadge hashedSeed={hashedSeed} />
+      )}
+    </div>
+  )
+}
+
+function HashedSeedBadge({ hashedSeed }: { hashedSeed: string }) {
+  const [copied, setCopied] = useState(false)
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(hashedSeed)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
+  return (
+    <div className="absolute bottom-2 left-2 flex items-center gap-1.5 bg-black/50 backdrop-blur-sm border border-white/10 rounded-lg px-2 py-1">
+      <span className="text-foreground-variant text-[10px]">Hash Seed:</span>
+      <span className="text-foreground text-[10px] font-mono">
+        {hashedSeed.slice(0, 8)}...{hashedSeed.slice(-8)}
+      </span>
+      <button
+        onClick={handleCopy}
+        className="text-foreground-variant hover:text-foreground transition-colors ml-0.5"
+      >
+        {copied ? <Check size={11} /> : <Copy size={11} />}
+      </button>
     </div>
   )
 }

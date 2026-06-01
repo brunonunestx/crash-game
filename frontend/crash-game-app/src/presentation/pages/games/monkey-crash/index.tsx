@@ -113,6 +113,7 @@ export function MonkeyCrashPage() {
               playing={currentRound?.status === RoundStatus.PLAYING}
               crashed={currentRound?.status === RoundStatus.ENDED}
               rocketSrc="/monkey_at_rocket.png"
+              hashedSeed={currentRound?.hashedSeed}
             />
           </div>
         </div>
