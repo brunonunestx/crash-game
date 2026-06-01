@@ -13,8 +13,8 @@ type ButtonProps = {
 
 const variants = {
   primary: 'bg-primary text-white',
-  secondary: 'bg-secondary text-white',
-  gradient: 'bg-gradient-to-r from-[#C9A13A] via-[#E5C76B] to-[#D8B24B]',
+  secondary: 'bg-secondary text-background font-semibold',
+  gradient: 'bg-gradient-to-r from-[#C9A13A] via-[#E5C76B] to-[#D8B24B] text-background font-semibold',
   bet: 'bg-primary text-white hover:bg-primary/80',
 }
 

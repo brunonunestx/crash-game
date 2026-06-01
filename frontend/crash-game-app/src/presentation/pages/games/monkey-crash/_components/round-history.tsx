@@ -1,7 +1,10 @@
 import { centsToDouble } from '@crash-game/utils'
+import { useState } from 'react'
+import type { RoundHistoryItem } from '#/data/repositories/games/round/repository'
+import { RoundVerifyModal } from './round-verify-modal'
 
 type RoundHistoryProps = {
-  history: number[]
+  history: RoundHistoryItem[]
 }
 
 function chipStyle(multiplier: number): string {
@@ -15,23 +18,35 @@ function chipStyle(multiplier: number): string {
 }
 
 export function RoundHistory({ history }: RoundHistoryProps) {
+  const [selectedRoundId, setSelectedRoundId] = useState<string | null>(null)
+
   if (history.length === 0) return null
 
   return (
-    <div className="w-full min-w-0 overflow-x-auto styled-scrollbar p-2">
-      <div className="flex items-center gap-2">
-        {[...history].reverse().map((crashPoint, i) => {
-          const multiplier = centsToDouble(crashPoint)
-          return (
-            <span
-              key={i}
-              className={`shrink-0 text-xs font-bold px-2 py-1 rounded-lg border ${chipStyle(multiplier)}`}
-            >
-              {multiplier.toFixed(2)}x
-            </span>
-          )
-        })}
+    <>
+      <div className="w-full min-w-0 overflow-x-auto styled-scrollbar p-2">
+        <div className="flex items-center gap-2">
+          {[...history].reverse().map((item) => {
+            const multiplier = centsToDouble(item.breakPoint)
+            return (
+              <span
+                key={item.id}
+                onClick={() => setSelectedRoundId(item.id)}
+                className={`shrink-0 text-xs font-bold px-2 py-1 cursor-pointer rounded-lg border ${chipStyle(multiplier)}`}
+              >
+                {multiplier.toFixed(2)}x
+              </span>
+            )
+          })}
+        </div>
       </div>
-    </div>
+
+      {selectedRoundId && (
+        <RoundVerifyModal
+          roundId={selectedRoundId}
+          onClose={() => setSelectedRoundId(null)}
+        />
+      )}
+    </>
   )
 }

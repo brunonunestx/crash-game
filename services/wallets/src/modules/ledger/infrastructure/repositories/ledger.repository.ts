@@ -17,6 +17,38 @@ export class LedgerRepository {
     });
   }
 
+  async findByUserEmail(
+    userEmail: string,
+    skip: number,
+    limit: number,
+    orderBy: "asc" | "desc" = "desc",
+  ): Promise<Ledger[]> {
+    const ledgerData = await this.database.ledger.findMany({
+      where: { userEmail },
+      orderBy: { createdAt: orderBy },
+      skip,
+      take: Number(limit),
+    });
+
+    return ledgerData.map(
+      (data) =>
+        new Ledger({
+          id: data.id,
+          userEmail: data.userEmail,
+          amount: data.amount,
+          type: data.type,
+          createdAt: data.createdAt,
+        }),
+    );
+  }
+
+  async findTotalByUserEmail(userEmail: string): Promise<number> {
+    return await this.database.ledger.count({
+      where: { userEmail },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
   async getCurrentBalance(userEmail: string): Promise<number> {
     const result = await this.database.$queryRaw<[{ balance: bigint | null }]>`
       SELECT SUM(

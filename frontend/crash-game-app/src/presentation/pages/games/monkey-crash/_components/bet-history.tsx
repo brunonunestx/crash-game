@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { centsToDouble } from '@crash-game/utils'
 import type { RoundBetItem } from '#/data/repositories/games/bet/repository'
+import { RoundVerifyModal } from './round-verify-modal'
 
 type BetHistoryProps = {
   bets: RoundBetItem[]
+  roundId?: string
 }
 
 function maskEmail(email: string): string {
@@ -28,7 +31,9 @@ function statusLabel(status: RoundBetItem['status'], cashoutAt: number | null) {
   return <span className="text-yellow-400 animate-pulse">Voando...</span>
 }
 
-export function BetHistory({ bets }: BetHistoryProps) {
+export function BetHistory({ bets, roundId }: BetHistoryProps) {
+  const [modalOpen, setModalOpen] = useState(false)
+
   if (bets.length === 0) {
     return (
       <div className="flex items-center justify-center h-full text-zinc-500 text-sm">
@@ -43,28 +48,35 @@ export function BetHistory({ bets }: BetHistoryProps) {
   })
 
   return (
-    <div className="flex flex-col gap-1 overflow-y-auto h-full styled-scrollbar pr-1 ">
-      <div className="grid grid-cols-3 text-xs text-zinc-500 px-2 pb-1 border-b border-white/5">
-        <span>Jogador</span>
-        <span className="text-right">Aposta</span>
-        <span className="text-right">Saída</span>
-      </div>
-      {sorted.map((bet) => (
-        <div
-          key={bet.id}
-          className="grid grid-cols-3 text-xs px-2 py-1.5 rounded-md hover:bg-white/5 transition-colors"
-        >
-          <span className="text-zinc-300 truncate">
-            {maskEmail(bet.userEmail)}
-          </span>
-          <span className="text-right text-zinc-300">
-            R$ {centsToDouble(bet.amount).toFixed(2)}
-          </span>
-          <span className="text-right">
-            {statusLabel(bet.status, bet.cashoutAt)}
-          </span>
+    <>
+      <div className="flex flex-col gap-1 overflow-y-auto h-full styled-scrollbar pr-1">
+        <div className="grid grid-cols-3 text-xs text-zinc-500 px-2 pb-1 border-b border-white/5">
+          <span>Jogador</span>
+          <span className="text-right">Aposta</span>
+          <span className="text-right">Saída</span>
         </div>
-      ))}
-    </div>
+        {sorted.map((bet) => (
+          <div
+            key={bet.id}
+            onClick={() => roundId && setModalOpen(true)}
+            className={`grid grid-cols-3 text-xs px-2 py-1.5 rounded-md transition-colors ${roundId ? 'cursor-pointer hover:bg-white/10' : 'hover:bg-white/5'}`}
+          >
+            <span className="text-zinc-300 truncate">
+              {maskEmail(bet.userEmail)}
+            </span>
+            <span className="text-right text-zinc-300">
+              R$ {centsToDouble(bet.amount).toFixed(2)}
+            </span>
+            <span className="text-right">
+              {statusLabel(bet.status, bet.cashoutAt)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {modalOpen && roundId && (
+        <RoundVerifyModal roundId={roundId} onClose={() => setModalOpen(false)} />
+      )}
+    </>
   )
 }
