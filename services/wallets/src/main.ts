@@ -4,9 +4,20 @@ import { AppModule } from "./app.module";
 import { queueNames } from "@crash-game/constants/src/rabbitmq";
 import { Transport } from "@nestjs/microservices/enums/transport.enum";
 import { MicroserviceOptions } from "@nestjs/microservices/interfaces/microservice-configuration.interface";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix("wallet");
+
+  const config = new DocumentBuilder()
+    .setTitle("Wallets Service")
+    .setVersion("1.0")
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("docs", app, document);
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {

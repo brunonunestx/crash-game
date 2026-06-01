@@ -12,14 +12,21 @@ datasource db {
   provider = "postgresql"
 }
 
+enum WalletStatus {
+  ACTIVE
+  SUSPENDED
+  CLOSED
+}
+
 model Wallet {
-  id        String   @id @default(uuid())
-  userEmail String   @unique
-  balance   Int      @default(0)
+  id        String       @id @default(uuid())
+  owner     String       @unique
+  balance   Int          @default(0)
+  status    WalletStatus @default(ACTIVE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userEmail])
+  @@index([owner])
 }
 
 enum TransactionType {
@@ -30,11 +37,11 @@ enum TransactionType {
 }
 
 model Ledger {
-  id        String   @id @default(uuid())
+  id        String          @id @default(uuid())
   userEmail String
   amount    Int
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
   type      TransactionType
 
   @@index([userEmail])
@@ -46,12 +53,12 @@ enum EventType {
 }
 
 model Inbox {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   eventType EventType
   payload   Json
-  messageId String   @unique
-  processed Boolean  @default(false)
-  createdAt DateTime @default(now())
+  messageId String    @unique
+  processed Boolean   @default(false)
+  createdAt DateTime  @default(now())
 
   @@index([processed])
   @@index([eventType])
