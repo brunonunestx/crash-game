@@ -44,4 +44,23 @@ export class WalletRepository {
       data: { balance: amount },
     });
   }
+
+  async findByEmail(userEmail: string): Promise<Wallet | null> {
+    const walletData = await this.database.wallet.findUnique({
+      where: { owner: userEmail },
+    });
+
+    if (!walletData) {
+      return null;
+    }
+
+    return new Wallet({
+      id: walletData.id,
+      owner: walletData.owner,
+      balance: walletData.balance,
+      status: walletData.status,
+      createdAt: walletData.createdAt,
+      updatedAt: walletData.updatedAt,
+    });
+  }
 }

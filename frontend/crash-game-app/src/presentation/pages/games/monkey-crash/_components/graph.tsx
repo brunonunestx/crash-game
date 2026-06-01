@@ -1,44 +1,44 @@
 import React, { useEffect, useRef } from 'react'
 
-type Particle = {
-  angle: number
-  speed: number
-  size: number
-  color: string
-}
+import { RoundStatus } from '@crash-game/types'
 
-type Explosion = {
+type FlyAway = {
   startTime: number
-  particles: Particle[]
+  x: number
+  y: number
 }
 
 type GraphProps = {
   multiplierRef: React.RefObject<HTMLSpanElement | null>
+  currentPointRef: React.RefObject<number>
   roundId: number
+  status: RoundStatus | undefined
   betting: boolean
   playing: boolean
   crashed: boolean
   rocketSrc?: string
 }
 
-const EXPLOSION_COLORS = ['#FF4444', '#FF8C00', '#FFD700', '#FF6B35', '#FFF']
-const EXPLOSION_DURATION = 1200
+const FLY_DURATION = 1400
 const CURVE_EXPONENT = 0.22
 const CURVE_X_STEP = 3
 
-function generateParticles(): Particle[] {
-  return Array.from({ length: 28 }, () => ({
-    angle: Math.random() * Math.PI * 2,
-    speed: 0.3 + Math.random() * 0.7,
-    size: 3 + Math.random() * 6,
-    color:
-      EXPLOSION_COLORS[Math.floor(Math.random() * EXPLOSION_COLORS.length)],
-  }))
+// Log scale: 1x at 88% down, 32x at 8% down
+const CHART_BOTTOM_PCT = 0.88
+const CHART_TOP_PCT = 0.08
+const LOG_REF = Math.log(32)
+
+function curveScreenY(t: number, H: number): number {
+  const M = Math.exp(t * CURVE_EXPONENT)
+  const logM = Math.log(Math.max(M, 1))
+  return H * CHART_BOTTOM_PCT - (logM / LOG_REF) * H * (CHART_BOTTOM_PCT - CHART_TOP_PCT)
 }
 
 export function Graph({
   multiplierRef,
+  currentPointRef,
   roundId,
+  status,
   betting,
   playing,
   crashed,
@@ -46,8 +46,9 @@ export function Graph({
 }: GraphProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const startTimeRef = useRef<number | null>(null)
+  const lastElapsedRef = useRef(0)
   const rocketImageRef = useRef<HTMLImageElement | null>(null)
-  const explosionRef = useRef<Explosion | null>(null)
+  const flyAwayRef = useRef<FlyAway | null>(null)
   const crashedTipRef = useRef<{ x: number; y: number } | null>(null)
   const crashedRef = useRef(false)
   const bettingRef = useRef(false)
@@ -64,7 +65,8 @@ export function Graph({
   useEffect(() => {
     if (playing) {
       startTimeRef.current = performance.now()
-      explosionRef.current = null
+      lastElapsedRef.current = 0
+      flyAwayRef.current = null
       crashedTipRef.current = null
     } else {
       startTimeRef.current = null
@@ -77,10 +79,11 @@ export function Graph({
 
   useEffect(() => {
     crashedRef.current = crashed
-    if (crashed) {
-      explosionRef.current = {
+    if (crashed && crashedTipRef.current) {
+      flyAwayRef.current = {
         startTime: performance.now(),
-        particles: generateParticles(),
+        x: crashedTipRef.current.x,
+        y: crashedTipRef.current.y,
       }
     }
   }, [crashed])
@@ -101,6 +104,18 @@ export function Graph({
 
     let rafId: number
 
+    // pct values derived from log scale: pct = BOTTOM - (log(M)/log(32)) * (BOTTOM - TOP)
+    const Y_LABELS = [
+      { label: '32x', pct: 0.08 },
+      { label: '16x', pct: 0.24 },
+      { label: '8x', pct: 0.40 },
+      { label: '4x', pct: 0.56 },
+      { label: '2x', pct: 0.72 },
+      { label: '1x', pct: 0.88 },
+    ]
+
+    const X_LABELS = ['10s', '20s', '30s', '40s']
+
     function draw(now: number) {
       const canvas = canvasRef.current
       if (!canvas) return
@@ -115,87 +130,111 @@ export function Graph({
       ctx.scale(dpr, dpr)
       ctx.clearRect(0, 0, W, H)
 
+      const AXIS_LEFT = 36
+      const AXIS_BOTTOM = 24
+
+      ctx.font = '11px monospace'
+      ctx.textAlign = 'right'
+      ctx.textBaseline = 'middle'
+      for (const { label, pct } of Y_LABELS) {
+        const y = pct * H
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(AXIS_LEFT, y)
+        ctx.lineTo(W, y)
+        ctx.stroke()
+        ctx.fillStyle = 'rgba(255,255,255,0.35)'
+        ctx.fillText(label, AXIS_LEFT - 4, y)
+      }
+
+      ctx.textAlign = 'center'
+      ctx.textBaseline = 'bottom'
+      const xSlots = X_LABELS.length + 1
+      for (let i = 0; i < X_LABELS.length; i++) {
+        const x = AXIS_LEFT + ((i + 1) / xSlots) * (W - AXIS_LEFT)
+        ctx.strokeStyle = 'rgba(255,255,255,0.06)'
+        ctx.lineWidth = 1
+        ctx.beginPath()
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, H - AXIS_BOTTOM)
+        ctx.stroke()
+        ctx.fillStyle = 'rgba(255,255,255,0.35)'
+        ctx.fillText(X_LABELS[i], x, H - 4)
+      }
+
       const elapsed =
-        startTimeRef.current !== null ? (now - startTimeRef.current) / 1000 : 0
+        startTimeRef.current !== null
+          ? (now - startTimeRef.current) / 1000
+          : lastElapsedRef.current
+
+      if (startTimeRef.current !== null) {
+        lastElapsedRef.current = elapsed
+      }
 
       const tipX = Math.floor(elapsed * 60)
       const tipWorldX = tipX * CURVE_X_STEP
-      const tipWorldY = H - Math.exp((tipX / 60) * CURVE_EXPONENT) * 20
+      // Y is computed in screen space via log scale — no Y camera offset needed
+      const tipScreenY = curveScreenY(tipX / 60, H)
 
       const leftMargin = 60
       const camTargetX = Math.min(tipWorldX + leftMargin, W * 0.65)
-      const camTargetY = H * 0.65
       const camOffsetX = camTargetX - tipWorldX
-      const camOffsetY = camTargetY - tipWorldY
 
       ctx.save()
-      ctx.translate(camOffsetX, camOffsetY)
+      ctx.translate(camOffsetX, 0)
       ctx.beginPath()
       for (let x = 0; x <= elapsed * 60; x++) {
-        const t = x / 60
         const px = x * CURVE_X_STEP
-        const py = H - Math.exp(t * CURVE_EXPONENT) * 20
+        const py = curveScreenY(x / 60, H)
         if (x === 0) ctx.moveTo(px, py)
         else ctx.lineTo(px, py)
       }
-      ctx.strokeStyle = crashedRef.current ? '#FF4444' : '#FFD700'
+      const curveColor = crashedRef.current ? '#FF4444' : '#FFD700'
+      ctx.shadowBlur = 14
+      ctx.shadowColor = curveColor
+      ctx.strokeStyle = curveColor
       ctx.lineWidth = 4
       ctx.stroke()
+      ctx.shadowBlur = 0
       ctx.restore()
 
-      const showMonkey = !crashedRef.current && rocketImageRef.current &&
-        (bettingRef.current || tipX > 0)
+      const flyAway = flyAwayRef.current
+      const flyElapsed = flyAway ? now - flyAway.startTime : 0
+      const flyDone = flyElapsed > FLY_DURATION
+      const isFlying = flyAway !== null && !flyDone
+
+      const showMonkey =
+        rocketImageRef.current !== null &&
+        (isFlying || (!crashedRef.current && (bettingRef.current || tipX > 0)))
 
       if (showMonkey && rocketImageRef.current) {
-        const size = 240
-        crashedTipRef.current = { x: camTargetX, y: camTargetY }
-        ctx.drawImage(rocketImageRef.current, camTargetX - size / 2, camTargetY - size / 2, size, size)
-      }
+        const multiplier = (currentPointRef.current ?? 100) / 100
+        const size = Math.min(240 + (multiplier - 1) * 15, 420)
 
-      const explosion = explosionRef.current
-      if (crashedRef.current && explosion) {
-        const progress = Math.min(
-          (now - explosion.startTime) / EXPLOSION_DURATION,
-          1,
-        )
-        const eased = 1 - Math.pow(1 - progress, 2) // ease-out
-        const origin = crashedTipRef.current ?? { x: camTargetX, y: camTargetY }
+        let drawX: number
+        let drawY: number
+        let rotation = 0
 
-        const ringRadius = eased * 80
-        const ringAlpha = 1 - progress
-        ctx.beginPath()
-        ctx.arc(origin.x, origin.y, ringRadius, 0, Math.PI * 2)
-        ctx.strokeStyle = `rgba(255, 100, 50, ${ringAlpha})`
-        ctx.lineWidth = 3
-        ctx.stroke()
-
-        ctx.beginPath()
-        ctx.arc(origin.x, origin.y, ringRadius * 0.6, 0, Math.PI * 2)
-        ctx.strokeStyle = `rgba(255, 200, 50, ${ringAlpha * 0.6})`
-        ctx.lineWidth = 2
-        ctx.stroke()
-
-        for (const p of explosion.particles) {
-          const dist = eased * p.speed * 120
-          const px = origin.x + Math.cos(p.angle) * dist
-          const py = origin.y + Math.sin(p.angle) * dist
-          const alpha = 1 - progress
-
-          ctx.beginPath()
-          ctx.arc(px, py, p.size * (1 - progress * 0.5), 0, Math.PI * 2)
-          ctx.fillStyle = p.color
-            .replace(')', `, ${alpha})`)
-            .replace('rgb', 'rgba')
-            .replace('#', 'rgba(')
-            .replace('rgba(FF', 'rgba(255,')
-
-          const hex = p.color.replace('#', '')
-          const r = parseInt(hex.substring(0, 2), 16)
-          const g = parseInt(hex.substring(2, 4), 16)
-          const b = parseInt(hex.substring(4, 6), 16)
-          ctx.fillStyle = `rgba(${r},${g},${b},${alpha})`
-          ctx.fill()
+        if (!crashedRef.current || !flyAway) {
+          crashedTipRef.current = { x: camTargetX, y: tipScreenY }
+          drawX = camTargetX
+          drawY = tipScreenY
+        } else {
+          const t = Math.min(flyElapsed / FLY_DURATION, 1)
+          const eased = t * t
+          const flyDist = eased * 700
+          const flyAngle = -Math.PI / 3
+          drawX = flyAway.x + Math.cos(flyAngle) * flyDist
+          drawY = flyAway.y + Math.sin(flyAngle) * flyDist
+          rotation = t * Math.PI * 6
         }
+
+        ctx.save()
+        ctx.translate(drawX, drawY)
+        ctx.rotate(rotation)
+        ctx.drawImage(rocketImageRef.current, -size / 2, -size / 2, size, size)
+        ctx.restore()
       }
 
       ctx.restore()
@@ -210,14 +249,37 @@ export function Graph({
   }, [])
 
   return (
-    <div className="ml-auto mr-auto relative w-[50%] h-64 bg-background-variant rounded-lg overflow-hidden">
+    <div className="relative w-full h-full bg-background rounded-lg overflow-hidden">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-      <span
-        ref={multiplierRef}
-        className="absolute inset-0 flex items-center justify-center text-4xl font-bold text-golden"
-      >
-        1.00x
-      </span>
+
+      {status === RoundStatus.BETTING && (
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-2xl font-bold text-primary animate-pulse">
+            Apostas abertas
+          </span>
+        </div>
+      )}
+
+      {status === RoundStatus.ENDED && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-1">
+          <span
+            ref={multiplierRef}
+            className="text-5xl font-bold text-red-400"
+          />
+          <span className="text-xl font-bold text-red-400">CRASH!</span>
+        </div>
+      )}
+
+      {(status === RoundStatus.PLAYING ||
+        status === RoundStatus.STARTING ||
+        !status) && (
+        <span
+          ref={multiplierRef}
+          className="absolute inset-0 flex items-center justify-center text-4xl font-bold font-black-ops-one-regular text-primary"
+        >
+          1.00x
+        </span>
+      )}
     </div>
   )
 }

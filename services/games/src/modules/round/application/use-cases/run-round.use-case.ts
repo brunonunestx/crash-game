@@ -1,7 +1,7 @@
 import { UseCase } from "@/shared/patterns/use-case";
 import { Injectable } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
-import { cronTimes, messages } from "@crash-game/constants";
+import { cronTimes, gameTimings, messages } from "@crash-game/constants";
 import { Round } from "../../domain/entities/round.entity";
 import { RoundEngine } from "../engine/round.engine";
 import { delay } from "@crash-game/utils";
@@ -11,9 +11,17 @@ import { FinishRoundUseCase } from "./finish-round.use-case";
 
 const timings = {
   starting: 1000,
-  betting: 10000,
-  playing: 50,
+  betting: gameTimings.bettingDurationMs,
 };
+
+function getPlayingDelay(currentPoint: number): number {
+  const multiplier = currentPoint / 100;
+  if (multiplier >= 40) return 10;
+  if (multiplier >= 30) return 20;
+  if (multiplier >= 20) return 30;
+  if (multiplier >= 10) return 40;
+  return 50;
+}
 
 @Injectable()
 export class RunRound extends UseCase<void, void> {
@@ -58,7 +66,7 @@ export class RunRound extends UseCase<void, void> {
     const crashAt = round.calculateCrashPoint();
 
     while (round.currentPoint < crashAt) {
-      await delay(timings.playing);
+      await delay(getPlayingDelay(round.currentPoint));
       round.incrementPoint();
       this.roundEngine.setCurrentRound(round);
       this.roundGateway.broadcast(messages.roundUpdate, round);

@@ -12,18 +12,10 @@ export class DepositWalletUseCase {
 
   async execute(userEmail: string, amount: number): Promise<void> {
     console.log(`Depositando ${amount} na carteira do usuário ${userEmail}`);
-    const currentBalance =
-      await this.walletRepository.getWalletBalance(userEmail);
-
     await this.createLedger.execute({
       userEmail,
       amount,
       type: TransactionType.DEPOSIT,
     });
-
-    await this.walletRepository.updateWalletBalance(
-      userEmail,
-      currentBalance + amount,
-    );
   }
 }

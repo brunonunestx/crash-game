@@ -1,4 +1,5 @@
-import type { ICreateBetInput } from '@crash-game/types'
+import type { ICashoutResponse, ICreateBetInput } from '@crash-game/types'
+import { doubleToCents } from '@crash-game/utils'
 import { BaseRepository } from '../base.repository'
 
 export class BetRepository extends BaseRepository {
@@ -7,11 +8,12 @@ export class BetRepository extends BaseRepository {
   }
 
   createBet(payload: ICreateBetInput) {
-    return this.http.post('/', payload)
+    return this.http.post('/', { amount: doubleToCents(payload.amount) })
   }
 
-  cashOut() {
-    return this.http.post('/cashout')
+  async cashOut(): Promise<ICashoutResponse> {
+    const response = await this.http.post<ICashoutResponse>('/cashout')
+    return response.data
   }
 
   cancelBet() {

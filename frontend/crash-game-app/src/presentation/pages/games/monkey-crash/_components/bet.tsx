@@ -1,78 +1,332 @@
 import { useBet } from '#/data/queries/games/use-bet'
-import { Button } from '#/presentation/components/button'
-import { Input } from '#/presentation/components/input'
+import { Box } from '#/presentation/components/box'
+import { Toast } from '#/presentation/components/toast'
 import { RoundStatus, type IRound } from '@crash-game/types'
-import { useEffect, useState } from 'react'
+import { gameTimings } from '@crash-game/constants'
+import { useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 type BetProps = {
   round: IRound | null
+  currentMultiplier: number
 }
 
-export const Bet = ({ round }: BetProps) => {
-  const [betAmount, setBetAmount] = useState<number>(0)
-  const [userAlreadyBet, setUserAlreadyBet] = useState<boolean>(false)
-  const [userAlreadyCashOut, setUserAlreadyCashOut] = useState<boolean>(false)
-  const [label, setLabel] = useState<string>('Aguardar')
+type Tab = 'manual' | 'auto'
+
+const CHIP_AMOUNTS = [1, 2, 5, 10, 50, 100]
+
+export const Bet = ({ round, currentMultiplier }: BetProps) => {
+  const [tab, setTab] = useState<Tab>('manual')
+  const [betAmount, setBetAmount] = useState(0)
+  const [targetMultiplier, setTargetMultiplier] = useState(2.0)
+  const [confirming, setConfirming] = useState(false)
+  const [userAlreadyBet, setUserAlreadyBet] = useState(false)
+  const [userAlreadyCashOut, setUserAlreadyCashOut] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(gameTimings.bettingDurationMs)
+
+  const userAlreadyBetRef = useRef(false)
+  const userAlreadyCashOutRef = useRef(false)
+  const betAmountSnapshotRef = useRef(0)
 
   const { useCreateBet, useCashOut, useCancelBet } = useBet()
 
   useEffect(() => {
-    if (round?.status === RoundStatus.STARTING) {
-      setUserAlreadyBet(false)
-      setUserAlreadyCashOut(false)
-      setBetAmount(0)
-      setLabel('Aguardar')
-    }
-
-    if (round?.status === RoundStatus.BETTING) {
-      userAlreadyBet ? setLabel('Aguardar') : setLabel('Apostar')
-    }
-
-    if (round?.status === RoundStatus.PLAYING) {
-      userAlreadyBet ? setLabel('Cash Out') : setLabel('Aguardar')
-    }
-
     if (round?.status === RoundStatus.ENDED) {
-      setUserAlreadyBet(false)
-      setBetAmount(0)
-      setLabel('Aguardar')
+      if (userAlreadyBetRef.current && !userAlreadyCashOutRef.current) {
+        toast.custom(() => (
+          <Toast
+            message={`Você perdeu R$ ${betAmountSnapshotRef.current.toFixed(2)}`}
+            type="error"
+          />
+        ))
+      }
+      resetRound()
     }
+    if (round?.status === RoundStatus.STARTING) resetRound()
   }, [round?.status])
 
-  function makeBet() {
-    setUserAlreadyBet(true)
-    useCreateBet.mutate({
-      amount: betAmount,
-    })
+  useEffect(() => {
+    if (round?.status !== RoundStatus.BETTING) {
+      setTimeLeft(gameTimings.bettingDurationMs)
+      return
+    }
+    const startedAt = Date.now()
+    const interval = setInterval(() => {
+      setTimeLeft(
+        Math.max(0, gameTimings.bettingDurationMs - (Date.now() - startedAt)),
+      )
+    }, 100)
+    return () => clearInterval(interval)
+  }, [round?.status])
+
+  function resetRound() {
+    userAlreadyBetRef.current = false
+    userAlreadyCashOutRef.current = false
+    betAmountSnapshotRef.current = 0
+    setUserAlreadyBet(false)
+    setUserAlreadyCashOut(false)
+    setBetAmount(0)
+    setConfirming(false)
   }
 
-  function cashOut() {
+  function placeBet() {
+    userAlreadyBetRef.current = true
+    betAmountSnapshotRef.current = betAmount
+    setUserAlreadyBet(true)
+    useCreateBet.mutate({ amount: betAmount })
+    setConfirming(false)
+  }
+
+  function doCashOut() {
+    userAlreadyCashOutRef.current = true
     setUserAlreadyCashOut(true)
     useCashOut.mutate()
   }
 
+  const status = round?.status
+  const isBetting = status === RoundStatus.BETTING
+  const isPlaying = status === RoundStatus.PLAYING
+  const isCashOutMode = isPlaying && userAlreadyBet && !userAlreadyCashOut
+
+  const timerPercent = (timeLeft / gameTimings.bettingDurationMs) * 100
+  const timerColor =
+    timeLeft > 5000
+      ? 'bg-green-500'
+      : timeLeft > 2000
+        ? 'bg-yellow-400'
+        : 'bg-red-500'
+
+  const potentialGain = (betAmount * targetMultiplier).toFixed(2)
+  const currentGain = (
+    betAmountSnapshotRef.current * currentMultiplier
+  ).toFixed(2)
+
   return (
-    <div className="flex flex-col items-center gap-4 p-4">
-      <div
-        id="manual-bet"
-        className="flex items-center gap-2 bg-background-variant p-4 rounded-lg"
-      >
-        <Input
-          value={betAmount}
-          onChange={(amount) => setBetAmount(Number(amount))}
-        />
-        <Button
-          label={label}
-          variant="bet"
-          onClick={round?.status === RoundStatus.BETTING ? makeBet : cashOut}
-          className="cursor-pointer"
-          disabled={
-            round?.status === RoundStatus.ENDED ||
-            round?.status === RoundStatus.STARTING
-          }
-        ></Button>
+    <Box className="w-full h-full items-start justify-start gap-0 p-0 overflow-hidden">
+      {/* Tabs */}
+      <div className="flex w-full border-b border-golden">
+        {(['manual', 'auto'] as Tab[]).map((t) => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className={`flex-1 py-3 text-sm font-bold uppercase tracking-wide transition-colors ${
+              tab === t
+                ? 'text-primary border-b-2 border-primary -mb-px'
+                : 'text-foreground-variant hover:text-foreground'
+            }`}
+          >
+            {t === 'manual' ? 'Manual' : 'Automático'}
+          </button>
+        ))}
       </div>
-      <div id="auto-bet" className="flex items-center gap-2"></div>
-    </div>
+
+      <div className="flex flex-col gap-4 p-5 w-full flex-1">
+        {tab === 'auto' ? (
+          <div className="flex flex-1 items-center justify-center">
+            <p className="text-foreground-variant text-sm">Em breve</p>
+          </div>
+        ) : (
+          <>
+            {/* Timer */}
+            {isBetting && (
+              <div className="flex flex-col gap-1">
+                <div className="flex justify-between text-xs text-foreground-variant">
+                  <span>Tempo para apostar</span>
+                  <span>{Math.ceil(timeLeft / 1000)}s</span>
+                </div>
+                <div className="w-full h-1.5 bg-background rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-100 ${timerColor}`}
+                    style={{ width: `${timerPercent}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Confirmation */}
+            {confirming ? (
+              <div className="flex flex-col gap-3 flex-1">
+                <p className="text-foreground text-sm">
+                  Confirmar aposta de{' '}
+                  <span className="text-primary font-bold">
+                    R$ {betAmount.toFixed(2)}
+                  </span>
+                  ?
+                </p>
+                <div className="flex gap-2">
+                  <ActionButton
+                    label="Confirmar"
+                    sub={`GANHO POTENCIAL: R$ ${potentialGain}`}
+                    onClick={placeBet}
+                    loading={useCreateBet.isPending}
+                    color="from-yellow-600 via-yellow-400 to-yellow-600"
+                  />
+                </div>
+                <button
+                  onClick={() => setConfirming(false)}
+                  className="text-xs text-foreground-variant hover:text-foreground underline text-center"
+                >
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Bet amount */}
+                <div className="flex flex-col gap-2">
+                  <span className="text-foreground-variant text-xs font-semibold uppercase tracking-wide">
+                    Valor da aposta
+                  </span>
+                  <div className="flex items-center gap-2 bg-background rounded-xl border border-golden px-3 py-2">
+                    <span className="text-foreground-variant text-sm">R$</span>
+                    <input
+                      type="number"
+                      value={betAmount || ''}
+                      placeholder="0,00"
+                      disabled={userAlreadyBet}
+                      onChange={(e) =>
+                        setBetAmount(Math.max(0, Number(e.target.value)))
+                      }
+                      className="flex-1 bg-transparent text-foreground text-sm outline-none disabled:opacity-50"
+                    />
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => setBetAmount((p) => Math.max(0, p / 2))}
+                        disabled={userAlreadyBet || betAmount <= 0}
+                        className="text-xs px-1.5 py-0.5 rounded bg-background-variant text-foreground-variant hover:text-primary disabled:opacity-40"
+                      >
+                        /2
+                      </button>
+                      <button
+                        onClick={() => setBetAmount((p) => p * 2)}
+                        disabled={userAlreadyBet || betAmount <= 0}
+                        className="text-xs px-1.5 py-0.5 rounded bg-background-variant text-foreground-variant hover:text-primary disabled:opacity-40"
+                      >
+                        x2
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex gap-1.5 flex-wrap">
+                    {CHIP_AMOUNTS.map((val) => (
+                      <button
+                        key={val}
+                        onClick={() => setBetAmount((p) => p + val)}
+                        disabled={userAlreadyBet}
+                        className="text-xs px-2 py-1 rounded-lg bg-background-variant text-foreground-variant hover:text-primary hover:border-primary border border-golden/40 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      >
+                        +{val}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Target multiplier */}
+                {/* <div className="flex flex-col gap-2">
+                  <span className="text-foreground-variant text-xs font-semibold uppercase tracking-wide">
+                    Multiplicador alvo
+                  </span>
+                  <div className="flex items-center gap-2 bg-background rounded-xl border border-golden px-3 py-2">
+                    <button
+                      onClick={() => setTargetMultiplier((p) => Math.max(1.01, Math.round((p - 0.25) * 100) / 100))}
+                      className="text-foreground-variant hover:text-primary text-lg leading-none"
+                    >
+                      −
+                    </button>
+                    <span className="flex-1 text-center text-foreground text-sm font-semibold">
+                      {targetMultiplier.toFixed(2)}x
+                    </span>
+                    <button
+                      onClick={() => setTargetMultiplier((p) => Math.round((p + 0.25) * 100) / 100)}
+                      className="text-foreground-variant hover:text-primary text-lg leading-none"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div> */}
+
+                {/* Main action button */}
+                <div className="mt-auto">
+                  {isCashOutMode ? (
+                    <ActionButton
+                      label="CASH OUT"
+                      sub={`GANHO ATUAL: R$ ${currentGain}`}
+                      onClick={doCashOut}
+                      loading={useCashOut.isPending}
+                      color="from-green-700 via-green-500 to-green-700"
+                    />
+                  ) : isPlaying && !userAlreadyBet ? (
+                    <ActionButton
+                      label="AGUARDAR"
+                      sub="Próxima rodada"
+                      onClick={() => {}}
+                      disabled
+                      color="from-gray-700 via-gray-600 to-gray-700"
+                    />
+                  ) : isBetting && userAlreadyBet ? (
+                    <ActionButton
+                      label="CANCELAR APOSTA"
+                      sub={`Aposta: R$ ${betAmountSnapshotRef.current.toFixed(2)}`}
+                      onClick={() => useCancelBet.mutate()}
+                      loading={useCancelBet.isPending}
+                      color="from-red-800 via-red-600 to-red-800"
+                    />
+                  ) : isBetting ? (
+                    <ActionButton
+                      label="APOSTAR"
+                      sub={
+                        betAmount > 0
+                          ? `POSSÍVEIS GANHOS: R$ ${potentialGain}`
+                          : 'Insira um valor'
+                      }
+                      onClick={() => setConfirming(true)}
+                      disabled={betAmount <= 0}
+                      color="from-yellow-600 via-yellow-400 to-yellow-600"
+                    />
+                  ) : (
+                    <ActionButton
+                      label="AGUARDAR"
+                      sub="Apostas fechadas"
+                      onClick={() => {}}
+                      disabled
+                      color="from-gray-700 via-gray-600 to-gray-700"
+                    />
+                  )}
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
+    </Box>
+  )
+}
+
+type ActionButtonProps = {
+  label: string
+  sub: string
+  onClick: () => void
+  loading?: boolean
+  disabled?: boolean
+  color: string
+}
+
+function ActionButton({
+  label,
+  sub,
+  onClick,
+  loading,
+  disabled,
+  color,
+}: ActionButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled || loading}
+      className={`w-full rounded-xl bg-gradient-to-r ${color} flex flex-col items-center justify-center py-3 gap-0.5 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity`}
+    >
+      <span className="text-white font-bold text-base tracking-wide">
+        {loading ? '...' : label}
+      </span>
+      <span className="text-white/70 text-xs">{sub}</span>
+    </button>
   )
 }

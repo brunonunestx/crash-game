@@ -1,9 +1,11 @@
+import { useWallet } from '#/data/queries/wallets/use-wallet'
 import { routesConfig } from '#/routes/routes.config'
 import { LogOutIcon } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
 
 export function Sidebar() {
   const navigate = useNavigate()
+  const { useBalance } = useWallet()
   return (
     <div className="w-64 h-[100dvh] flex flex-col justify-between bg-background text-white p-4">
       <div>
@@ -39,7 +41,11 @@ export function Sidebar() {
             {routesConfig.profile.name}
           </div>
 
-          <p className="text-gray-400 text-sm">R$ 100,00</p>
+          <p className="text-gray-400 text-sm">
+            {useBalance.isLoading
+              ? '...'
+              : `R$ ${useBalance.data?.toFixed(2) ?? '--'}`}
+          </p>
         </div>
         <div className="hover:bg-gray-700 rounded-xl flex items-center justify-start px-4 py-2 w-full">
           <LogOutIcon className="inline-block mr-2" />

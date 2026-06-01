@@ -23,10 +23,5 @@ export class WithdrawWalletUseCase {
       amount,
       type: TransactionType.WITHDRAW,
     });
-
-    await this.walletRepository.updateWalletBalance(
-      userEmail,
-      currentBalance - amount,
-    );
   }
 }

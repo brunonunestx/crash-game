@@ -16,4 +16,19 @@ export class LedgerRepository {
       },
     });
   }
+
+  async getCurrentBalance(userEmail: string): Promise<number> {
+    const result = await this.database.$queryRaw<[{ balance: bigint | null }]>`
+      SELECT SUM(
+        CASE
+          WHEN type IN ('WITHDRAW', 'LOSS') THEN -amount
+          ELSE amount
+        END
+      ) AS balance
+      FROM "Ledger"
+      WHERE "userEmail" = ${userEmail}
+    `;
+
+    return Number(result[0]?.balance ?? 0);
+  }
 }

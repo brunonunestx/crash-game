@@ -30,4 +30,9 @@ export class Wallet {
   canBet(amount: number): boolean {
     return this.balance >= amount;
   }
+
+  updateBalance(amount: number) {
+    this.balance += amount;
+    this.updatedAt = new Date();
+  }
 }
