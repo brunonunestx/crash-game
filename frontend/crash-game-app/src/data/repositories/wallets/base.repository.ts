@@ -63,7 +63,7 @@ export class BaseRepository {
 
   buildInstance(path: string): AxiosInstance {
     const gamesApiUrl = import.meta.env.VITE_WALLET_API_URL as string
-    const url = new URL('/games' + path, gamesApiUrl)
+    const url = new URL('/wallets' + path, gamesApiUrl)
     const instance = axios.create({ baseURL: url.toString() })
 
     instance.interceptors.request.use((config) => {

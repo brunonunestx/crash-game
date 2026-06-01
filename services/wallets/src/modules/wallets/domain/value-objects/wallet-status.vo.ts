@@ -1,10 +1,14 @@
 import { WalletStatus as WalletStatusEnum } from "generated/prisma/enums";
 
 export class WalletStatus {
-  value: WalletStatusEnum;
+  protected value: WalletStatusEnum;
 
   constructor(value: WalletStatusEnum) {
     this.value = value;
+  }
+
+  getValue(): WalletStatusEnum {
+    return this.value;
   }
 
   isActive(): boolean {

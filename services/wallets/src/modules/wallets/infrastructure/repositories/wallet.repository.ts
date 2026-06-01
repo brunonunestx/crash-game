@@ -1,9 +1,23 @@
 import { DatabaseService } from "@/providers/database/database.service";
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { Wallet } from "../../domain/entities/wallet.entity";
 
 @Injectable()
 export class WalletRepository {
   constructor(private readonly database: DatabaseService) {}
+  async save(wallet: Wallet): Promise<void> {
+    await this.database.wallet.create({
+      data: {
+        id: wallet.id,
+        owner: wallet.owner,
+        balance: wallet.balance,
+        status: wallet.status.getValue(),
+        createdAt: wallet.createdAt,
+        updatedAt: wallet.updatedAt,
+      },
+    });
+  }
+
   async getWalletBalance(userEmail: string): Promise<number> {
     const wallet = await this.database.wallet.findUnique({
       where: { owner: userEmail },

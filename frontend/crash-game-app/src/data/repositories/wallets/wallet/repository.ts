@@ -1,14 +1,16 @@
 import { BaseRepository } from '../base.repository'
 
-export class Repository extends BaseRepository {
+export class WalletRepository extends BaseRepository {
   constructor() {
-    super('/wallet')
+    super('')
   }
 
-  async getWalletBalance(userEmail: string): Promise<number> {
-    const response = await this.http.get('/balance', {
-      params: { userEmail },
-    })
+  async getWalletBalance(): Promise<number> {
+    const response = await this.http.get('/me')
     return response.data.balance
+  }
+
+  async createWallet(): Promise<void> {
+    await this.http.post('')
   }
 }

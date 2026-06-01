@@ -17,7 +17,7 @@ export class WalletController {
   @ApiOperation({ summary: "Create wallet for authenticated user" })
   @ApiResponse({ status: 201, description: "Wallet created" })
   async createWallet(@Req() request: any) {
-    await this.createWalletUseCase.execute(request.user.email);
+    await this.createWalletUseCase.execute(request.user.payload.email);
   }
 
   @Authenticated()
@@ -29,6 +29,6 @@ export class WalletController {
     schema: { type: "number" },
   })
   async getWallet(@Req() request: any) {
-    return this.getWalletUseCase.execute(request.user.email);
+    return this.getWalletUseCase.execute(request.user.payload.email);
   }
 }
