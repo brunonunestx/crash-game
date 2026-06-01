@@ -22,12 +22,20 @@ model Wallet {
   @@index([userEmail])
 }
 
+enum TransactionType {
+  LOSS
+  WIN
+  DEPOSIT
+  WITHDRAW
+}
+
 model Ledger {
   id        String   @id @default(uuid())
   userEmail String
   amount    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  type      TransactionType
 
   @@index([userEmail])
 }

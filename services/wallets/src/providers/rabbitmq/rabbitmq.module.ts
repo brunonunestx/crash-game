@@ -5,6 +5,7 @@ import { Subscriber } from "./application/subscriber/message.subscriber";
 import { RegisterInbox } from "./application/use-cases/register-inbox.use-case";
 import { InboxRepository } from "./infrastructure/repositories/inbox.repository";
 import { InboxWorker } from "./application/worker/inbox.worker";
+import { LedgerModule } from "@/modules/ledger/ledger.module";
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { InboxWorker } from "./application/worker/inbox.worker";
         },
       },
     ]),
+    LedgerModule,
   ],
   providers: [RegisterInbox, InboxRepository, InboxWorker, Subscriber],
   controllers: [Subscriber],

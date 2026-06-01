@@ -2,10 +2,14 @@ import { cronTimes } from "@crash-game/constants";
 import { Injectable } from "@nestjs/common";
 import { Cron } from "@nestjs/schedule";
 import { InboxRepository } from "../../infrastructure/repositories/inbox.repository";
+import { CreateLedgerItemUseCase } from "@/modules/ledger/application/use-cases/create-ledger.use-case";
 
 @Injectable()
 export class InboxWorker {
-  constructor(private readonly inboxRepository: InboxRepository) {}
+  constructor(
+    private readonly inboxRepository: InboxRepository,
+    private readonly createLedgerItemUseCase: CreateLedgerItemUseCase,
+  ) {}
 
   @Cron(cronTimes.every.second)
   async execute() {
@@ -17,9 +21,11 @@ export class InboxWorker {
 
     const processedMessages = [];
     for (const message of pendingMessages) {
-      console.log(
-        `Processing message with id ${message.id} and event type ${message.eventType}`,
-      );
+      await this.createLedgerItemUseCase.execute({
+        userEmail: message.payload.userEmail,
+        amount: message.payload.amount,
+        type: message.eventType,
+      });
 
       message.markAsProcessed();
       processedMessages.push(message);
