@@ -2,9 +2,7 @@ export const queueNames = {
   crashGame: "crash-game",
 };
 
-export const queueTopics = {
-  bet: "bet",
-  win: "win",
-  withdraw: "withdraw",
-  deposit: "deposit",
+export const messageTypes = {
+  betDone: "BET_DONE",
+  betWinner: "BET_WINNER",
 };

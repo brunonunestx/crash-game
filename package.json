@@ -13,5 +13,7 @@
   },
   "devDependencies": {
     "bun-types": "latest"
+  },
+  "dependencies": {
   }
 }

@@ -1,7 +1,9 @@
 import { Module } from "@nestjs/common";
-import { WalletsController } from "./presentation/controllers/wallets.controller";
+import { providers } from "./providers";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
-  controllers: [WalletsController],
+  imports: [...providers, ScheduleModule.forRoot()],
+  controllers: [],
 })
 export class AppModule {}
