@@ -21,13 +21,10 @@ async function post(path: string, body?: object) {
   });
 }
 
-function waitForRoundStatus(
-  status: string,
-  timeoutMs = 30_000,
-): Promise<void> {
+function waitForRoundStatus(status: string, timeoutMs = 30_000): Promise<void> {
   return new Promise((resolve, reject) => {
     const wsUrl = ctx.baseUrl.replace("/games", "");
-    const socket = io(wsUrl, { transports: ["websocket"] });
+    const socket = io(wsUrl, { transports: ["websocket"], path: "/games/socket.io" });
     const timer = setTimeout(() => {
       socket.disconnect();
       reject(new Error(`Timeout aguardando rodada no status ${status}`));
@@ -64,29 +61,29 @@ describe("Bet HTTP e2e", () => {
   it("aguarda uma rodada entrar em BETTING e cria uma aposta", async () => {
     await waitForRoundStatus(RoundStatus.BETTING);
 
-    const res = await post("/bet", { amount: 100 });
+    const res = await post("/bets", { amount: 100 });
     expect(res.status).toBe(201);
   }, 40_000);
 
   it("retorna erro ao tentar criar segunda aposta na mesma rodada", async () => {
-    const res = await post("/bet", { amount: 50 });
+    const res = await post("/bets", { amount: 50 });
     expect(res.status).toBeGreaterThanOrEqual(400);
   });
 
   it("cancela a aposta enquanto a rodada está em BETTING", async () => {
     await waitForRoundStatus(RoundStatus.BETTING);
 
-    const res = await post("/bet/cancel");
+    const res = await post("/bets/cancel");
     expect(res.status).toBe(201);
   }, 40_000);
 
   it("cria aposta e realiza cash out quando rodada está em PLAYING", async () => {
     await waitForRoundStatus(RoundStatus.BETTING);
-    await post("/bet", { amount: 100 });
+    await post("/bets", { amount: 100 });
 
     await waitForRoundStatus(RoundStatus.PLAYING);
 
-    const res = await post("/bet/cashout");
+    const res = await post("/bets/cashout");
     expect(res.status).toBe(201);
 
     const body = await res.json();
@@ -96,7 +93,7 @@ describe("Bet HTTP e2e", () => {
   }, 40_000);
 
   it("retorna erro ao tentar cash out fora do estado PLAYING", async () => {
-    const res = await post("/bet/cashout");
+    const res = await post("/bets/cashout");
     expect(res.status).toBeGreaterThanOrEqual(400);
   });
 });

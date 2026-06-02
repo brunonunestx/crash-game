@@ -17,7 +17,7 @@ afterAll(async () => {
 }, 15_000);
 
 function connectSocket(): Socket {
-  return io(WS_URL, { transports: ["websocket"] });
+  return io(WS_URL, { transports: ["websocket"], path: "/games/socket.io" });
 }
 
 function waitForEvent<T>(

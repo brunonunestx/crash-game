@@ -22,9 +22,7 @@ export class RoundGateway implements OnGatewayConnection, OnGatewayDisconnect {
     client.emit(messages.syncRound, new RoundUpdatesDto(round));
   }
 
-  handleDisconnect(client: Socket) {
-    console.log("Client disconnected");
-  }
+  handleDisconnect(_client: Socket) {}
 
   broadcast(message: string, round: Round) {
     const dto = new RoundUpdatesDto(round);

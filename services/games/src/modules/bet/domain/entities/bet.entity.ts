@@ -68,7 +68,6 @@ export class Bet {
       throw new Error("Cannot calculate payout for an active bet.");
     }
 
-    console.log(this.amount);
     const doubleMultiplier = centsToDouble(this.cashoutAt ?? 0);
     const payout = Math.floor(this.amount * doubleMultiplier);
 

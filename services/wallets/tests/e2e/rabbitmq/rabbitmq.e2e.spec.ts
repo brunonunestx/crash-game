@@ -50,7 +50,6 @@ beforeAll(async () => {
   publisher = await createAmqpPublisher();
   token = await ctx.token(USER);
 
-  // setup: cria carteira e deposita saldo inicial
   await post("/");
   await post("/deposit", { amount: 5000 });
   await waitForBalance(5000);
@@ -71,7 +70,6 @@ describe("RabbitMQ integration e2e (wallets)", () => {
       amount: 500,
     });
 
-    // InboxWorker processa a cada 1s — aguarda até 10s
     await waitForBalance(4500);
     const balance = await getBalance();
     expect(balance).toBe(4500);
@@ -95,11 +93,9 @@ describe("RabbitMQ integration e2e (wallets)", () => {
     const msgId = crypto.randomUUID();
     const payload = { id: msgId, userEmail: USER, amount: 300 };
 
-    // publica a mesma mensagem duas vezes
     publisher.publish(EventType.BET_DONE, payload);
     publisher.publish(EventType.BET_DONE, payload);
 
-    // aguarda processamento da primeira
     await waitForBalance(5400);
     await Bun.sleep(2000); // tempo extra para garantir que a segunda não processou
 

@@ -23,7 +23,6 @@ describe("GetRound", () => {
   });
 
   it("lança InternalServerErrorException quando não há rodada em execução", async () => {
-    // engine começa sem rodada
     await expect(useCase.execute()).rejects.toThrow(
       InternalServerErrorException,
     );

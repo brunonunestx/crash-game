@@ -54,7 +54,6 @@ describe("Wallet HTTP e2e", () => {
     const res = await post("/deposit", { amount: 1000 });
     expect(res.status).toBe(201);
 
-    // ledger atualiza saldo de forma síncrona via createLedger → updateBalance
     const balance = await getBalance();
     expect(balance).toBe(1000);
   });
@@ -71,7 +70,6 @@ describe("Wallet HTTP e2e", () => {
     const res = await post("/withdraw", { amount: 9999 });
     expect(res.status).toBe(400);
 
-    // saldo não muda
     const balance = await getBalance();
     expect(balance).toBe(700);
   });

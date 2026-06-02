@@ -5,6 +5,7 @@ import { AppModule } from "../../../src/app.module";
 import { AuthEngine } from "../../../src/providers/auth/auth.engine";
 import { AuthCron } from "../../../src/providers/auth/auth.cron";
 import { SendMessageWorker } from "../../../src/providers/rabbitmq/application/workers/send-message.worker";
+import { CreateBet } from "../../../src/modules/bet/application/use-cases/create-bet.use-case";
 import { getTestAuth } from "./jwt.helper";
 
 export type TestApp = {
@@ -24,11 +25,10 @@ export async function startTestApp(port: number): Promise<TestApp> {
   const auth = await getTestAuth();
   app.get(AuthEngine).certs = auth.jwks;
 
-  // Impede o cron de sobrescrever os certs de teste com os do Keycloak real
   app.get(AuthCron).handleCron = async () => {};
 
-  // Impede publicação no RabbitMQ real durante os testes
   app.get(SendMessageWorker).sendMessage = async () => {};
+  (app.get(CreateBet) as any).validateBetAmount = async () => true;
 
   await app.listen(port, "0.0.0.0");
 

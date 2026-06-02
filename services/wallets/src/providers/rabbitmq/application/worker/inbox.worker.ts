@@ -27,7 +27,6 @@ export class InboxWorker {
 
     for (const message of pendingMessages) {
       try {
-        console.log(message.eventType);
         await this.createLedgerItemUseCase.execute({
           userEmail: message.payload.userEmail,
           amount: message.payload.amount,

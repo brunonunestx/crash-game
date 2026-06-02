@@ -92,7 +92,6 @@ describe("Round — Provably Fair", () => {
   it("jogador pode verificar o crash point conhecendo o seed", () => {
     const round = new Round({ nounce: 42 });
 
-    // Simula o que um jogador faz ao receber o seed após o crash
     const hmac = createHmac("sha256", round.seed)
       .update(round.number.toString())
       .digest("hex");
@@ -108,7 +107,6 @@ describe("Round — Provably Fair", () => {
     const round = new Round({ nounce: 1 });
     const hashedSeedBeforeRound = round.hashedSeed;
 
-    // Após o crash, o jogador recebe o seed e verifica
     const recomputed = createHash("sha256").update(round.seed).digest("hex");
     expect(recomputed).toBe(hashedSeedBeforeRound);
   });

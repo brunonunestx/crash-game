@@ -7,9 +7,6 @@ export class ValidateBetUseCase {
 
   async execute(userEmail: string, betAmount: number): Promise<boolean> {
     const balance = await this.getWalletUseCase.execute(userEmail);
-    console.log(
-      `Validating bet for user ${userEmail}: balance = ${balance}, betAmount = ${betAmount}`,
-    );
     return balance >= betAmount;
   }
 }

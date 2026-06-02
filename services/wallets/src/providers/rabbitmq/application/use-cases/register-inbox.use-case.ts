@@ -22,15 +22,8 @@ export class RegisterInbox {
     );
 
     if (existingMessage) {
-      console.log(
-        `Message with id ${inbox.messageId} already exists in the inbox.`,
-      );
       return;
     }
-
-    console.log("&&7");
-    console.log(inbox);
-    console.log("&&7");
 
     await this.inboxRepository.save(inbox);
   }

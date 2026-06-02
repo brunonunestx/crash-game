@@ -11,7 +11,6 @@ export class DepositWalletUseCase {
   ) {}
 
   async execute(userEmail: string, amount: number): Promise<void> {
-    console.log(`Depositando ${amount} na carteira do usuário ${userEmail}`);
     await this.createLedger.execute({
       userEmail,
       amount,

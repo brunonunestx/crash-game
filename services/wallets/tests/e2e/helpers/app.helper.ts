@@ -4,6 +4,7 @@ import type { INestApplication } from "@nestjs/common";
 import { Transport } from "@nestjs/microservices";
 import { AppModule } from "../../../src/app.module";
 import { AuthEngine } from "../../../src/providers/auth/auth.engine";
+import { AuthCron } from "../../../src/providers/auth/auth.cron";
 import { queueNames } from "@crash-game/constants/src/rabbitmq";
 import { getTestAuth } from "./jwt.helper";
 
@@ -30,6 +31,7 @@ export async function startTestApp(port: number): Promise<TestApp> {
 
   const auth = await getTestAuth();
   app.get(AuthEngine).certs = auth.jwks;
+  app.get(AuthCron).handleCron = async () => {};
 
   await app.startAllMicroservices();
   await app.listen(port, "0.0.0.0");
