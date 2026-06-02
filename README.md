@@ -56,7 +56,7 @@ cd services/games
 # Unitários
 bun test tests/unit
 
-# E2E (requer docker:up rodando)
+# E2E (sobe containers isolados automaticamente)
 bun run test:e2e
 ```
 
@@ -67,6 +67,9 @@ cd services/wallets
 
 # Unitários
 bun test tests/unit
+
+# E2E (sobe containers isolados automaticamente)
+bun run test:e2e
 ```
 
 ### Frontend

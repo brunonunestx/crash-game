@@ -1,4 +1,5 @@
 import { useWallet } from '#/data/queries/wallets/use-wallet'
+import { keyCloakRepositories } from '#/data/repositories/keycloak'
 import { routesConfig } from '#/routes/routes.config'
 import { LogOutIcon } from 'lucide-react'
 import { useNavigate } from '@tanstack/react-router'
@@ -27,6 +28,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   function handleNavigate(path: string) {
     navigate({ to: path })
     onClose()
+  }
+
+  function handleLogout() {
+    keyCloakRepositories.auth.logout()
+    navigate({ to: routesConfig.login.path })
   }
 
   return (
@@ -79,7 +85,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
               : `R$ ${useBalance.data?.toFixed(2) ?? '--'}`}
           </p>
         </div>
-        <div className="hover:bg-gray-700 text-sm cursor-pointer text-primary rounded-xl flex items-center justify-start px-4 py-2 w-full">
+        <div
+          onClick={handleLogout}
+          className="hover:bg-gray-700 text-sm cursor-pointer text-primary rounded-xl flex items-center justify-start px-4 py-2 w-full"
+        >
           <LogOutIcon className="inline-block mr-2" />
           Sair
         </div>

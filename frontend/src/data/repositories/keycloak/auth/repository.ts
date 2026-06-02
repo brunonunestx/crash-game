@@ -44,6 +44,10 @@ export class AuthRepository extends KeyCloakBaseRepository {
     )
   }
 
+  logout() {
+    localStorage.removeItem('user_tokens')
+  }
+
   async loginWithGoogle() {
     this.keycloak.init({ onLoad: 'check-sso', pkceMethod: 'S256' })
     try {

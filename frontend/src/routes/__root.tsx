@@ -35,13 +35,18 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         content: 'width=device-width, initial-scale=1, maximum-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'Jungle Cassinos',
       },
     ],
     links: [
       {
         rel: 'stylesheet',
         href: appCss,
+      },
+      {
+        rel: 'icon',
+        type: 'image/png',
+        href: '/jungle_cassinos.png',
       },
     ],
   }),
