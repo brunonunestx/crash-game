@@ -22,11 +22,14 @@ export class AuthCron implements OnModuleInit {
       return;
     }
 
-    const response = await fetch(
-      `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/certs`,
-    );
-
-    const keys = await response.json();
-    await this.authEngine.setCerts(keys);
+    try {
+      const response = await fetch(
+        `${this.keycloakUrl}/realms/${this.realm}/protocol/openid-connect/certs`,
+      );
+      const keys = await response.json();
+      await this.authEngine.setCerts(keys);
+    } catch {
+      console.warn("Failed to fetch Keycloak certs. Will retry.");
+    }
   }
 }

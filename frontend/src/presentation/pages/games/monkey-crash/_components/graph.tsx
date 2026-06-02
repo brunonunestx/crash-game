@@ -136,14 +136,14 @@ export function Graph({
     let rafId: number
 
     function draw(now: number) {
-      const canvas = canvasRef.current
-      if (!canvas) return
-      const ctx = canvas.getContext('2d')
+      const el = canvasRef.current
+      if (!el) return
+      const ctx = el.getContext('2d')
       if (!ctx) return
 
       const dpr = window.devicePixelRatio || 1
-      const W = canvas.width / dpr
-      const H = canvas.height / dpr
+      const W = el.width / dpr
+      const H = el.height / dpr
 
       const LOG_SCALE = H * LOG_SCALE_FACTOR
 
@@ -247,7 +247,7 @@ export function Graph({
         (isFlying || bettingRef.current || (!crashedRef.current && tipX > 0))
 
       if (showMonkey && rocketImageRef.current) {
-        const multiplier = (currentPointRef.current ?? 100) / 100
+        const multiplier = currentPointRef.current / 100
         const size = Math.min(240 + (multiplier - 1) * 15, 420)
 
         let drawX: number

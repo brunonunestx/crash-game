@@ -1,5 +1,7 @@
 import { Body, Controller, Get, Param, Post, Query, Req } from "@nestjs/common";
 import { CreateBet } from "../../application/use-cases/create-bet.use-case";
+
+type AuthRequest = { user: { payload: { email: string } } };
 import { CreateBetDto } from "../dto/create-bet.dto";
 import { Authenticated } from "@/providers/auth/auth.decorator";
 import { CancelBet } from "../../application/use-cases/cancel-bet.use-case";
@@ -19,36 +21,33 @@ export class BetController {
 
   @Authenticated()
   @Post()
-  createBet(@Req() req: any, @Body() payload: CreateBetDto) {
-    const user = req.user;
+  createBet(@Req() req: AuthRequest, @Body() payload: CreateBetDto) {
     return this.createBetUseCase.execute({
       ...payload,
-      userEmail: user.payload.email,
+      userEmail: req.user.payload.email,
     });
   }
 
   @Authenticated()
   @Post("cancel")
-  cancelBet(@Req() req: any) {
-    const user = req.user;
+  cancelBet(@Req() req: AuthRequest) {
     return this.cancelBetUseCase.execute({
-      userEmail: user.payload.email,
+      userEmail: req.user.payload.email,
     });
   }
 
   @Authenticated()
   @Post("cashout")
-  cashOut(@Req() req: any) {
-    const user = req.user;
+  cashOut(@Req() req: AuthRequest) {
     return this.cashoutBetUseCase.execute({
-      userEmail: user.payload.email,
+      userEmail: req.user.payload.email,
     });
   }
 
   @Authenticated()
   @Get("me")
   getMyBets(
-    @Req() req: any,
+    @Req() req: AuthRequest,
     @Query("page") page = "1",
     @Query("limit") limit = "20",
   ) {

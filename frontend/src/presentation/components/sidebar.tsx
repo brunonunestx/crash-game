@@ -73,9 +73,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         <hr className="border-golden my-4 w-full" />
         <div className="text-primary rounded-xl text-sm flex flex-col items-left justify-start px-4 py-2 w-full">
           <div className="flex items-center">
-            {routesConfig.profile.icon && (
-              <routesConfig.profile.icon className="inline-block mr-2" />
-            )}
+            <routesConfig.profile.icon className="inline-block mr-2" />
             <div>{userName}</div>
           </div>
 

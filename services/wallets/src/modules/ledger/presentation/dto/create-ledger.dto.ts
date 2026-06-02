@@ -1,4 +1,4 @@
-import { EventType, TransactionType } from "generated/prisma/enums";
+import { EventType } from "generated/prisma/enums";
 
 export class CreateLedgerDto {
   userEmail: string;

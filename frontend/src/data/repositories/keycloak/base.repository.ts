@@ -29,11 +29,11 @@ export class KeyCloakBaseRepository {
     })
   }
 
-  private getConfig() {
+  private getConfig(): { url: string; realm: string; clientId: string } {
     return {
-      url: import.meta.env.VITE_KEYCLOAK_URL,
-      realm: import.meta.env.VITE_KEYCLOAK_REALM,
-      clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID,
+      url: import.meta.env.VITE_KEYCLOAK_URL as string,
+      realm: import.meta.env.VITE_KEYCLOAK_REALM as string,
+      clientId: import.meta.env.VITE_KEYCLOAK_CLIENT_ID as string,
     }
   }
 }

@@ -1,8 +1,8 @@
 import { useBet } from '#/data/queries/games/use-bet'
-import { useWallet } from '#/data/queries/wallets/use-wallet'
 import { Box } from '#/presentation/components/box'
 import { Toast } from '#/presentation/components/toast'
-import { RoundStatus, type IRound } from '@crash-game/types'
+import { RoundStatus } from '@crash-game/types'
+import type { IRound } from '@crash-game/types'
 import { gameTimings } from '@crash-game/constants'
 import { useEffect, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -76,7 +76,7 @@ export const Bet = ({ round, currentMultiplier }: BetProps) => {
       },
       onError: (err: unknown) => {
         betAmountSnapshotRef.current = 0
-        const axiosMessage = (err as { response?: { data?: { message?: string } } })?.response?.data?.message
+        const axiosMessage = (err as { response?: { data?: { message?: string } } }).response?.data?.message
         const message = axiosMessage ?? (err instanceof Error ? err.message : 'Erro ao realizar aposta')
         toast.custom(() => <Toast message={message} type="error" />)
       },

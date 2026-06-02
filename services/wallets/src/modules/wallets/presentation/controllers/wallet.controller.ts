@@ -1,4 +1,6 @@
 import { Body, Controller, Get, Post, Query, Req } from "@nestjs/common";
+
+type AuthRequest = { user: { payload: { email: string } } };
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateWalletUseCase } from "../../application/use-cases/create-wallet.use-case";
 import { Authenticated } from "@/providers/auth/auth.decorator";
@@ -25,7 +27,7 @@ export class WalletController {
   @Post()
   @ApiOperation({ summary: "Create wallet for authenticated user" })
   @ApiResponse({ status: 201, description: "Wallet created" })
-  async createWallet(@Req() request: any) {
+  async createWallet(@Req() request: AuthRequest) {
     await this.createWalletUseCase.execute(request.user.payload.email);
   }
 
@@ -37,7 +39,7 @@ export class WalletController {
     description: "Wallet balance",
     schema: { type: "number" },
   })
-  async getWallet(@Req() request: any) {
+  async getWallet(@Req() request: AuthRequest) {
     const balance = await this.getWalletUseCase.execute(
       request.user.payload.email,
     );
@@ -48,7 +50,7 @@ export class WalletController {
   @Post("/deposit")
   @ApiOperation({ summary: "Deposit amount to authenticated user's wallet" })
   @ApiResponse({ status: 200, description: "Amount deposited" })
-  async deposit(@Req() request: any, @Body() body: { amount: number }) {
+  async deposit(@Req() request: AuthRequest, @Body() body: { amount: number }) {
     await this.depositWalletUseCase.execute(
       request.user.payload.email,
       body.amount,
@@ -59,7 +61,7 @@ export class WalletController {
   @Post("/withdraw")
   @ApiOperation({ summary: "Withdraw amount from authenticated user's wallet" })
   @ApiResponse({ status: 200, description: "Amount withdrawn" })
-  async withdraw(@Req() request: any, @Body() body: { amount: number }) {
+  async withdraw(@Req() request: AuthRequest, @Body() body: { amount: number }) {
     await this.withdrawWalletUseCase.execute(
       request.user.payload.email,
       body.amount,

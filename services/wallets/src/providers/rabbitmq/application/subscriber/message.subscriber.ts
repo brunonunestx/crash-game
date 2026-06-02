@@ -1,5 +1,5 @@
 import { Controller } from "@nestjs/common";
-import { Ctx, EventPattern, Payload, RmqContext } from "@nestjs/microservices";
+import { EventPattern, Payload } from "@nestjs/microservices";
 import { EventType } from "generated/prisma/enums";
 import { RegisterInbox } from "../use-cases/register-inbox.use-case";
 import { MessageDTO } from "../../presentation/dto/message.dto";

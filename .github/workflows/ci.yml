@@ -7,6 +7,28 @@ on:
     branches: [main]
 
 jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install
+
+      - name: Generate Prisma clients
+        run: |
+          cd services/games && bunx prisma generate
+          cd ../wallets && bunx prisma generate
+
+      - name: Run lint
+        run: bun run lint
+
   games-unit:
     name: Games — Unit Tests
     runs-on: ubuntu-latest

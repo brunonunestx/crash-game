@@ -54,7 +54,11 @@ export function LoginPage() {
                 <User size={18} />
                 Usuario
               </p>
-              <Input value={username} onChange={setUsername} className="w-full" />
+              <Input
+                value={username}
+                onChange={setUsername}
+                className="w-full"
+              />
             </div>
 
             <div className="flex flex-col w-full gap-2">
@@ -82,12 +86,6 @@ export function LoginPage() {
             className="w-full"
             isLoading={isLoading}
           />
-          <p className="text-foreground text-sm">
-            Não possui conta?{' '}
-            <a href="/register" className="text-primary">
-              Cadastre-se
-            </a>
-          </p>
         </Box>
       </div>
     </div>

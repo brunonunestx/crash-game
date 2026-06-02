@@ -1,16 +1,18 @@
 import { Injectable } from "@nestjs/common";
 
+type JwkSet = { keys: object[] }
+
 @Injectable()
 export class AuthEngine {
-  certs: any = null;
+  certs: JwkSet | null = null;
 
   constructor() {}
 
-  async setCerts(certs: any) {
+  async setCerts(certs: JwkSet) {
     this.certs = certs;
   }
 
-  getCerts() {
+  getCerts(): JwkSet | null {
     return this.certs;
   }
 }

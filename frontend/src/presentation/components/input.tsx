@@ -7,7 +7,7 @@ type InputProps = {
   type?: string
   regex?: RegExp
   disabled?: boolean
-  onChange: (value: string | number) => void
+  onChange: (value: string) => void
 }
 
 export function Input({

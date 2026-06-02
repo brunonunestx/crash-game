@@ -1,4 +1,5 @@
-import axios, { type AxiosInstance } from 'axios'
+import axios from 'axios'
+import type { AxiosInstance } from 'axios'
 import { routesConfig } from '@/routes/routes.config'
 
 type UserTokens = {

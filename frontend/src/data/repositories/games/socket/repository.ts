@@ -1,6 +1,7 @@
-import { io, Socket } from 'socket.io-client'
+import { io } from 'socket.io-client'
+import type { Socket } from 'socket.io-client'
 import { messages } from '@crash-game/constants'
-import { type IRound } from '@crash-game/types'
+import type { IRound } from '@crash-game/types'
 
 export class SocketRepository {
   private socket: Socket | null = null

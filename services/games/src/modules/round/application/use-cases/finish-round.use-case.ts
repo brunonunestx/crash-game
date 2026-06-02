@@ -1,6 +1,5 @@
 import { Injectable } from "@nestjs/common";
 import { UseCase } from "@/shared/patterns/use-case";
-import { FindWinnersUseCase } from "@/modules/bet/application/use-cases/find-winners.use-case";
 import { CloseOpenedBetsUseCase } from "@/modules/bet/application/use-cases/close-opened-bets.use-case";
 
 @Injectable()

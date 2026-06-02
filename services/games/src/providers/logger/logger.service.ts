@@ -1,19 +1,20 @@
+/* eslint-disable no-console */
 import { LoggerService } from "@nestjs/common";
 
 export class Logger implements LoggerService {
-  log(message: any, ...args: any[]) {
+  log(message: unknown, ...args: unknown[]) {
     console.log(message, ...args);
   }
 
-  error(message: any, ...args: any[]) {
+  error(message: unknown, ...args: unknown[]) {
     console.error(message, ...args);
   }
 
-  warn(message: any, ...args: any[]) {
+  warn(message: unknown, ...args: unknown[]) {
     console.warn(message, ...args);
   }
 
-  debug(message: any, ...args: any[]) {
+  debug(message: unknown, ...args: unknown[]) {
     console.debug(message, ...args);
   }
 }

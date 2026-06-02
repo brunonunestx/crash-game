@@ -9,11 +9,14 @@
   "scripts": {
     "docker:up": "docker compose up",
     "docker:down": "docker compose down",
-    "docker:prune": "docker compose down -v --rmi all --remove-orphans && docker volume prune -f"
+    "docker:prune": "docker compose down -v --rmi all --remove-orphans && docker volume prune -f",
+    "lint": "bun run --cwd services/games lint && bun run --cwd services/wallets lint && bun run --cwd frontend lint"
   },
   "devDependencies": {
-    "bun-types": "latest"
+    "bun-types": "latest",
+    "eslint": "^10.4.1",
+    "typescript-eslint": "^8.60.1"
   },
-  "dependencies": {
-  }
+  "dependencies": {},
+  "type": "module"
 }
